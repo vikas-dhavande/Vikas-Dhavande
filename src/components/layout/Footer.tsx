@@ -82,18 +82,6 @@ export default function Footer() {
             </span>
           </div>
         </Link>
-        <p className="bg-transparent text-center text-xs leading-4 text-primary/60 md:text-left">
-          Welcome to Designali, where creativity meets strategy to bring your
-          vision to life. I am passionate about transforming ideas into
-          compelling visual experiences. I specialize in crafting unique brand
-          identities, immersive digital experiences, and engaging content that
-          resonates with your audience. My mission is to empower businesses and
-          brands to stand out in a crowded market. I believe in the power of
-          design to tell stories, evoke emotions, and drive meaningful
-          connections. I believe in quality, not quantity. Designali is actually
-          an agency of one. This means you'll work directly with me, founder of
-          Designali.
-        </p>
       </div>
 
       <div className="mx-auto max-w-7xl px-6 py-10">

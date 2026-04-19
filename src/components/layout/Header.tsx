@@ -3,7 +3,20 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../hooks/useAuth';
-import { LogIn, LogOut, Cpu, Cloud, BookOpen, Menu, X } from 'lucide-react';
+import { 
+  LogIn, 
+  LogOut, 
+  Cpu, 
+  Cloud, 
+  BookOpen, 
+  Menu, 
+  X, 
+  User as UserIcon, 
+  LayoutDashboard, 
+  Lock, 
+  Mail, 
+  Image as ImageIcon 
+} from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { ToggleTheme } from '../ui/toggle-theme';
 import { LoginModal } from '../auth/LoginModal';
@@ -41,7 +54,7 @@ function LoginModalHandler({
 }
 
 export default function Header() {
-  const { isAuthenticated, user, loading } = useAuth();
+  const { isAuthenticated, user, loading, logout } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
@@ -107,21 +120,108 @@ export default function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-16 z-40 bg-background/95 backdrop-blur-md transition-all animate-in fade-in slide-in-from-top-4 duration-200">
-          <nav className="container flex flex-col p-6 gap-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-4 p-4 rounded-xl border border-transparent hover:border-border hover:bg-muted/50 transition-all text-lg font-medium"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <link.icon className="h-5 w-5" />
-                </div>
-                {link.label}
-              </Link>
-            ))}
+        <div className="md:hidden fixed inset-0 top-16 z-40 bg-background/95 backdrop-blur-xl transition-all animate-in fade-in slide-in-from-top-4 duration-200 overflow-y-auto border-t border-border/50">
+          <nav className="container flex flex-col p-6 gap-8 pb-20">
+            <div className="flex flex-col gap-3">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] px-4 opacity-70">Navigation</p>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary shadow-sm">
+                    <link.icon className="h-5 w-5" />
+                  </div>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            {isAuthenticated && user && (
+              <div className="flex flex-col gap-3">
+                <div className="h-px bg-border/50 my-2 mx-4" />
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] px-4 opacity-70">Account Management</p>
+                
+                <Link
+                  href="/dashboard/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 shadow-sm">
+                    <UserIcon className="h-5 w-5" />
+                  </div>
+                  My Profile
+                </Link>
+
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 shadow-sm">
+                    <LayoutDashboard className="h-5 w-5" />
+                  </div>
+                  Dashboard
+                </Link>
+
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'password' }));
+                  }}
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold text-left w-full active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-600 shadow-sm">
+                    <Lock className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  Change Password
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'email' }));
+                  }}
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold text-left w-full active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 text-green-600 shadow-sm">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  Update Email
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'image' }));
+                  }}
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold text-left w-full active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-600 shadow-sm">
+                    <ImageIcon className="h-5 w-5" />
+                  </div>
+                  Update Profile Image
+                </button>
+
+                <div className="h-px bg-border/50 my-2 mx-4" />
+
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    logout();
+                  }}
+                  // Wait, I need to destructure 'logout' from useAuth in the Header component
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-red-500/20 hover:bg-red-500/5 transition-all text-lg font-bold text-red-500 w-full active:scale-[0.98]"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-500 shadow-sm">
+                    <LogOut className="h-5 w-5" />
+                  </div>
+                  Sign Out
+                </button>
+              </div>
+            )}
           </nav>
         </div>
       )}
