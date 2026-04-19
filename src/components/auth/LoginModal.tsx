@@ -1,0 +1,139 @@
+import * as React from "react";
+import { useAuth } from "../../hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Github, Globe, Chrome } from "lucide-react";
+
+interface LoginModalProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
+  const { signInWithGoogle, signInWithGithub } = useAuth();
+  const [email, setEmail] = React.useState("");
+
+  const handleGoogleLogin = async () => {
+    await signInWithGoogle();
+    onOpenChange(false);
+  };
+
+  const handleGithubLogin = async () => {
+    await signInWithGithub();
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden border-none shadow-2xl">
+        <div className="flex flex-col md:flex-row h-[600px]">
+          {/* Left Side: Branding/Visual */}
+          <div className="hidden md:flex relative w-1/2 bg-primary items-center justify-center p-12 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80" />
+            
+            {/* Abstract Premium Visuals */}
+            <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-white/10 blur-3xl animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/20 blur-3xl" />
+            
+            <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 shadow-xl">
+                 <Globe className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Welcome Back</h2>
+                <p className="text-white/70 text-sm max-w-[240px] leading-relaxed">
+                  Access your synchronized workspace and cloud resources across all your devices.
+                </p>
+              </div>
+              
+              <div className="pt-8 grid grid-cols-2 gap-4 w-full opacity-50">
+                <div className="h-2 rounded-full bg-white/20" />
+                <div className="h-2 rounded-full bg-white/20" />
+                <div className="h-2 rounded-full bg-white/20 w-1/2" />
+                <div className="h-2 rounded-full bg-white/20 w-3/4" />
+              </div>
+            </div>
+            
+            <div className="absolute bottom-8 left-8 flex items-center gap-2">
+               <div className="h-1.5 w-1.5 rounded-full bg-white/40" />
+               <span className="text-[10px] font-medium text-white/40 uppercase tracking-widest">Antigravity Identity</span>
+            </div>
+          </div>
+
+          {/* Right Side: Login Form */}
+          <div className="flex-1 flex flex-col justify-center p-8 md:p-12 bg-card">
+            <div className="mx-auto w-full max-w-[320px] space-y-8">
+              <div className="space-y-2">
+                <DialogTitle className="text-2xl font-bold tracking-tight">Sign in</DialogTitle>
+                <DialogDescription>
+                  Choose your preferred authentication provider.
+                </DialogDescription>
+              </div>
+
+              <div className="grid gap-4">
+                <Button 
+                  variant="outline" 
+                  className="w-full h-11 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium"
+                  onClick={handleGoogleLogin}
+                >
+                  <Chrome className="w-4 h-4" />
+                  Continue with Google
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full h-11 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium"
+                  onClick={handleGithubLogin}
+                >
+                  <Github className="w-4 h-4" />
+                  Continue with GitHub
+                </Button>
+              </div>
+
+              <div className="relative flex items-center py-2">
+                <div className="flex-grow border-t border-border/40"></div>
+                <span className="flex-shrink mx-4 text-xs text-muted-foreground uppercase tracking-widest font-semibold">Or</span>
+                <div className="flex-grow border-t border-border/40"></div>
+              </div>
+
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-xs uppercase tracking-wider text-muted-foreground">Email address</Label>
+                  <Input 
+                    id="email" 
+                    placeholder="name@example.com" 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-transparent border-border/60 focus:ring-primary/20"
+                  />
+                </div>
+                <Button className="w-full h-11 font-semibold" disabled={!email}>
+                  Continue with Email
+                </Button>
+              </div>
+
+              <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+                By clicking continue, you agree to our{" "}
+                <a href="#" className="underline underline-offset-4 hover:text-primary transition-colors">
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a href="#" className="underline underline-offset-4 hover:text-primary transition-colors">
+                  Privacy Policy
+                </a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
