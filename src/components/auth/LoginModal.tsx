@@ -28,9 +28,9 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden border-none shadow-2xl">
-        <div className="flex flex-col md:flex-row h-[600px]">
-          {/* Left Side: Branding/Visual */}
+      <DialogContent className="w-[95vw] max-w-[400px] md:max-w-[800px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+        <div className="flex flex-col md:flex-row min-h-0 md:h-[600px]">
+          {/* Left Side: Branding/Visual - Hidden on Mobile */}
           <div className="hidden md:flex relative w-1/2 bg-primary items-center justify-center p-12 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80" />
             
@@ -64,47 +64,47 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
           </div>
 
           {/* Right Side: Login Form */}
-          <div className="flex-1 flex flex-col justify-center p-8 md:p-12 bg-card overflow-y-auto">
+          <div className="flex-1 flex flex-col justify-center p-6 xs:p-8 md:p-12 bg-card max-h-[90vh] overflow-y-auto">
             <div className="mx-auto w-full max-w-[320px] space-y-6">
-              <div className="space-y-2 text-center md:text-left">
-                <DialogTitle className="text-2xl font-bold tracking-tight">Sign in</DialogTitle>
-                <DialogDescription>
+              <div className="space-y-1.5 text-center md:text-left">
+                <DialogTitle className="text-xl md:text-2xl font-bold tracking-tight">Sign in</DialogTitle>
+                <DialogDescription className="text-sm">
                   Choose your preferred authentication provider.
                 </DialogDescription>
               </div>
 
-              <div className="grid gap-3">
+              <div className="grid gap-2.5">
                 <Button 
                   variant="outline" 
-                  className="w-full h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium text-xs"
+                  className="w-full h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium text-xs rounded-xl"
                   onClick={() => handleProviderLogin('google')}
                 >
-                  <Chrome className="w-4 h-4" />
+                  <Chrome className="w-4 h-4 text-primary" />
                   Continue with Google
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium text-xs"
+                  className="w-full h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium text-xs rounded-xl"
                   onClick={() => handleProviderLogin('github')}
                 >
                   <Github className="w-4 h-4" />
                   Continue with GitHub
                 </Button>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <Button 
                     variant="outline" 
-                    className="h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-2 font-medium text-[10px]"
+                    className="h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-2 font-medium text-[10px] rounded-xl"
                     onClick={() => handleProviderLogin('facebook')}
                   >
-                    <Facebook className="w-3.5 h-3.5" />
+                    <Facebook className="w-3.5 h-3.5 text-blue-600" />
                     Facebook
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-2 font-medium text-[10px]"
+                    className="h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-2 font-medium text-[10px] rounded-xl"
                     onClick={() => handleProviderLogin('azure')}
                   >
-                    <Component className="w-3.5 h-3.5" />
+                    <Component className="w-3.5 h-3.5 text-blue-500" />
                     Microsoft
                   </Button>
                 </div>
@@ -118,22 +118,22 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
 
               <div className="grid gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-[10px] uppercase tracking-wider text-muted-foreground">Email address</Label>
+                  <Label htmlFor="email" className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Email address</Label>
                   <Input 
                     id="email" 
                     placeholder="name@example.com" 
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-9 bg-transparent border-border/60 focus:ring-primary/20 text-sm"
+                    className="h-9 bg-transparent border-border/60 focus:ring-primary/20 text-sm rounded-lg"
                   />
                 </div>
-                <Button className="w-full h-10 font-semibold text-xs" disabled={!email}>
+                <Button className="w-full h-10 font-semibold text-xs rounded-xl" disabled={!email}>
                   Continue with Email
                 </Button>
               </div>
 
-              <p className="text-center text-[10px] leading-relaxed text-muted-foreground">
+              <p className="text-center text-[10px] leading-relaxed text-muted-foreground px-2">
                 By clicking continue, you agree to our{" "}
                 <a href="#" className="underline underline-offset-4 hover:text-primary transition-colors">
                   Terms of Service

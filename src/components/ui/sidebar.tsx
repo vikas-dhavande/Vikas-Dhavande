@@ -2,6 +2,8 @@ import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { cn } from "../../lib/utils"
+import { useIsMobile } from "../../hooks/use-mobile"
+import { Sheet, SheetContent } from "../ui/sheet"
 
 const SidebarContext = React.createContext<{
   state: "expanded" | "collapsed"
@@ -40,6 +42,7 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
+    const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
     const [internalOpen, setInternalOpen] = React.useState(defaultOpen)
 
@@ -57,8 +60,8 @@ const SidebarProvider = React.forwardRef<
     )
 
     const toggleSidebar = React.useCallback(() => {
-      return setOpen((prev) => !prev)
-    }, [setOpen])
+      return isMobile ? setOpenMobile((prev) => !prev) : setOpen((prev) => !prev)
+    }, [isMobile, setOpen, setOpenMobile])
 
     const state = (open ? "expanded" : "collapsed") as "expanded" | "collapsed"
 
@@ -67,12 +70,12 @@ const SidebarProvider = React.forwardRef<
         state,
         open,
         setOpen,
-        isMobile: false, // Simplified for now
+        isMobile,
         openMobile,
         setOpenMobile,
         toggleSidebar,
       }),
-      [state, open, setOpen, openMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, openMobile, toggleSidebar]
     )
 
     return (
@@ -112,7 +115,37 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { state, openMobile, setOpenMobile } = useSidebar()
+    const { state, isMobile, openMobile, setOpenMobile } = useSidebar()
+
+    if (collapsible === "none") {
+      return (
+        <div
+          className={cn(
+            "flex h-full w-[var(--sidebar-width)] flex-col bg-sidebar text-sidebar-foreground",
+            className
+          )}
+          ref={ref}
+          {...props}
+        >
+          {children}
+        </div>
+      )
+    }
+
+    if (isMobile) {
+      return (
+        <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+          <SheetContent
+            data-sidebar="sidebar"
+            data-mobile="true"
+            className="w-[var(--sidebar-width)] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            side={side}
+          >
+            <div className="flex h-full w-full flex-col">{children}</div>
+          </SheetContent>
+        </Sheet>
+      )
+    }
 
     return (
       <div

@@ -92,7 +92,7 @@ const Icon = ({
     >
       {/* Inner wrapper for the continuous floating animation */}
       <motion.div
-        className="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 p-3 rounded-3xl shadow-xl bg-card/80 backdrop-blur-md border border-border/10"
+        className="flex items-center justify-center w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 p-2 sm:p-3 rounded-2xl sm:rounded-3xl shadow-xl bg-card/80 backdrop-blur-md border border-border/10"
         animate={{
           y: [0, -8, 0, 8, 0],
           x: [0, 6, 0, -6, 0],
@@ -105,7 +105,7 @@ const Icon = ({
           ease: 'easeInOut',
         }}
       >
-        <iconData.icon className="w-8 h-8 md:w-10 md:h-10 text-foreground" />
+        <iconData.icon className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-foreground" />
       </motion.div>
     </motion.div>
   );
@@ -129,13 +129,13 @@ const FloatingIconsHero = React.forwardRef<
       ref={ref}
       onMouseMove={handleMouseMove}
       className={cn(
-        'relative w-full h-[calc(100vh-4rem)] min-h-[600px] flex items-center justify-center overflow-hidden bg-background',
+        'relative w-full h-[calc(100vh-4rem)] min-h-[500px] sm:min-h-[600px] flex items-center justify-center overflow-hidden bg-background',
         className
       )}
       {...props}
     >
       {/* Container for the background floating icons */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none sm:pointer-events-auto">
+      <div className="absolute inset-0 w-full h-full pointer-events-none sm:pointer-events-auto overflow-hidden">
         {icons.map((iconData, index) => (
           <Icon
             key={iconData.id}
@@ -148,15 +148,15 @@ const FloatingIconsHero = React.forwardRef<
       </div>
 
       {/* Container for the foreground content */}
-      <div className="relative z-10 text-center px-4 pointer-events-none">
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 text-transparent bg-clip-text pb-2">
+      <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 pointer-events-none">
+        <h1 className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 text-transparent bg-clip-text pb-2 leading-tight">
           {title}
         </h1>
-        <p className="mt-6 max-w-xl mx-auto text-lg text-muted-foreground pointer-events-auto">
+        <p className="mt-4 sm:mt-6 max-w-lg sm:max-w-xl mx-auto text-base sm:text-lg md:text-xl text-muted-foreground pointer-events-auto px-2">
           {subtitle}
         </p>
-        <div className="mt-10 pointer-events-auto">
-          <Button size="lg" className="px-8 py-6 text-base font-semibold">
+        <div className="mt-8 sm:mt-10 pointer-events-auto">
+          <Button size="lg" className="px-6 py-5 sm:px-8 sm:py-6 text-sm sm:text-base font-semibold">
             <a href={ctaHref}>{ctaText}</a>
           </Button>
         </div>
