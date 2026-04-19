@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../src/hooks/useAuth';
-import { File, FileText, FileImage, FileSpreadsheet, Lock, ExternalLink, Loader2 } from 'lucide-react';
+import { FileText, Lock, ExternalLink, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import IconBreadcrumbs from '../../src/components/IconBreadcrumbs';
 
@@ -17,37 +17,47 @@ interface DriveFile {
 }
 
 export default function Resources() {
-  const { isAuthenticated, loading: authLoading, login } = useAuth();
+  const { isAuthenticated, signInWithGoogle } = useAuth();
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
+  const [authRequired, setAuthRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchFiles();
+    void fetchFiles();
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && authRequired) {
+      void fetchFiles();
     }
-  }, [isAuthenticated]);
+  }, [authRequired, isAuthenticated]);
 
   const fetchFiles = async () => {
     setFilesLoading(true);
     setError(null);
+
     try {
       const res = await fetch('/api/drive/files');
-      if (!res.ok) throw new Error('Failed to fetch files');
       const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setAuthRequired(true);
+          setFiles([]);
+          return;
+        }
+
+        throw new Error(data.error || 'Failed to fetch files');
+      }
+
+      setAuthRequired(false);
       setFiles(data.files || []);
     } catch (err: any) {
       setError(err.message || 'An error occurred while fetching files');
     } finally {
       setFilesLoading(false);
     }
-  };
-
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.includes('image')) return <FileImage className="h-6 w-6 text-blue-500" />;
-    if (mimeType.includes('pdf')) return <FileText className="h-6 w-6 text-red-500" />;
-    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return <FileSpreadsheet className="h-6 w-6 text-green-600" />;
-    return <File className="h-6 w-6 text-gray-500" />;
   };
 
   const formatSize = (bytes?: string) => {
@@ -65,15 +75,7 @@ export default function Resources() {
     });
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
+  if (authRequired && !isAuthenticated) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
         <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -81,10 +83,10 @@ export default function Resources() {
         </div>
         <h2 className="text-3xl font-bold text-foreground mb-4">Secure Network Resources</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-          Access our centralized repository of private workspaces, system documentation, and architecture diagrams. You must be authenticated to view connected drives.
+          This Drive source requires Google authentication. Sign in to load the connected files.
         </p>
         <button 
-          onClick={login}
+          onClick={() => void signInWithGoogle()}
           className="inline-flex flex-row items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-dark transition-colors shadow-lg"
         >
           Authenticate via Google
@@ -101,7 +103,9 @@ export default function Resources() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Cloud Architecture & Resources</h1>
-            <p className="text-sm text-muted-foreground mt-1">Authenticated via Google Drive / Cloud Platform</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isAuthenticated ? 'Connected with Google authentication' : 'Showing your public Google Drive resources'}
+            </p>
           </div>
           <button 
             onClick={fetchFiles}
@@ -121,6 +125,12 @@ export default function Resources() {
         {filesLoading ? (
           <div className="flex justify-center py-24">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : error ? (
+          <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">
+            <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Unable to load files</h3>
+            <p className="text-muted-foreground text-sm">Check the Drive API configuration and try again.</p>
           </div>
         ) : files.length === 0 ? (
           <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">

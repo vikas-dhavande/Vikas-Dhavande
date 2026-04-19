@@ -138,7 +138,7 @@ const demoIcons: FloatingIconsHeroProps['icons'] = [
 export default function FloatingIconsHeroDemo() {
   return (
     <FloatingIconsHero
-      title="Hi, I’m Vikas Dhavande 👋"
+      title="Hi, I’m Vikas 👋"
       subtitle=""
       ctaText="Explore Platform"
       ctaHref="#"

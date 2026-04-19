@@ -263,7 +263,7 @@ const defaultSignInContent = {
     },
     quote: {
         text: "Access project environments and private repositories.",
-        author: "Vikas Dhavande"
+        author: "Vikas"
     }
 };
 
@@ -274,7 +274,7 @@ const defaultSignUpContent = {
     },
     quote: {
         text: "Join the workspace to review ongoing system architectures.",
-        author: "Vikas Dhavande"
+        author: "Vikas"
     }
 };
 

@@ -2,31 +2,98 @@ import { google } from 'googleapis';
 import { jsonResponse } from '../_lib/responses';
 import { createOAuthClient, parseStoredTokens } from '../_lib/google-auth';
 
+interface DriveListResponse {
+  error?: {
+    message?: string;
+  };
+  files?: Array<{
+    iconLink?: string;
+    id: string;
+    mimeType: string;
+    modifiedTime?: string;
+    name: string;
+    size?: string;
+    webViewLink?: string;
+  }>;
+}
+
 export async function GET(request: Request) {
   try {
     const tokens = parseStoredTokens(request);
-    if (!tokens) {
-      return jsonResponse({ error: 'Unauthorized' }, { status: 401 });
+    const apiKey = process.env.GOOGLE_API_KEY;
+    const url = new URL(request.url);
+    const folderId =
+      url.searchParams.get('folderId')?.trim().replace(/'/g, "\\'") ||
+      process.env.GOOGLE_DRIVE_FOLDER_ID?.trim().replace(/'/g, "\\'") ||
+      null;
+
+    if (!tokens && !apiKey) {
+      return jsonResponse({ error: 'Unauthorized: No tokens or API key provided' }, { status: 401 });
     }
 
-    const oauth2Client = createOAuthClient();
-    oauth2Client.setCredentials(tokens);
+    if (!tokens && !folderId) {
+      return jsonResponse(
+        { error: 'Missing Google Drive folder id. Set GOOGLE_DRIVE_FOLDER_ID or pass ?folderId=...' },
+        { status: 400 },
+      );
+    }
 
-    const drive = google.drive({ auth: oauth2Client, version: 'v3' });
-    const url = new URL(request.url);
-    const folderId = url.searchParams.get('folderId')?.replace(/'/g, "\\'") ?? null;
     const query = folderId ? `'${folderId}' in parents and trashed = false` : 'trashed = false';
-
-    const response = await drive.files.list({
+    const listOptions = {
       fields: 'files(id, name, mimeType, webViewLink, iconLink, modifiedTime, size)',
+      includeItemsFromAllDrives: true,
       orderBy: 'modifiedTime desc',
       pageSize: 50,
       q: query,
-    });
+      supportsAllDrives: true,
+    } as const;
 
-    return jsonResponse({ files: response.data.files ?? [] });
+    let files = [];
+
+    if (tokens) {
+      try {
+        const oauth2Client = createOAuthClient();
+        oauth2Client.setCredentials(tokens);
+        const drive = google.drive({ auth: oauth2Client, version: 'v3' });
+
+        const response = await drive.files.list(listOptions);
+        files = response.data.files ?? [];
+      } catch (oauthError) {
+        console.error('OAuth Drive Fetch Failed, trying API Key fallback:', oauthError);
+        if (!apiKey) throw oauthError;
+      }
+    }
+
+    // Fallback to API Key for public-folder access. Forward the browser referer so
+    // referrer-restricted Google API keys keep working when the request is proxied.
+    if (files.length === 0 && apiKey) {
+      const driveUrl = new URL('https://www.googleapis.com/drive/v3/files');
+      driveUrl.searchParams.set('fields', listOptions.fields);
+      driveUrl.searchParams.set('includeItemsFromAllDrives', String(listOptions.includeItemsFromAllDrives));
+      driveUrl.searchParams.set('key', apiKey);
+      driveUrl.searchParams.set('orderBy', listOptions.orderBy);
+      driveUrl.searchParams.set('pageSize', String(listOptions.pageSize));
+      driveUrl.searchParams.set('q', listOptions.q);
+      driveUrl.searchParams.set('supportsAllDrives', String(listOptions.supportsAllDrives));
+
+      const upstreamReferer = request.headers.get('referer') ?? request.headers.get('origin');
+      const response = await fetch(driveUrl, {
+        headers: upstreamReferer ? { Referer: upstreamReferer } : undefined,
+      });
+      const data = (await response.json()) as DriveListResponse;
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Google Drive API request failed');
+      }
+
+      files = data.files ?? [];
+    }
+
+    return jsonResponse({ files });
   } catch (error) {
     console.error('Drive API Error:', error);
-    return jsonResponse({ error: 'Failed to fetch files' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to fetch files';
+    return jsonResponse({ error: message }, { status: 500 });
   }
 }
+

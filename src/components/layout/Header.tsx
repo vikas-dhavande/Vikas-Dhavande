@@ -24,7 +24,7 @@ export default function Header() {
       <div className="flex h-16 w-full items-center justify-between px-4 sm:px-8 lg:px-10">
         <Link href="/" className="flex items-center gap-2">
           <Cpu className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold tracking-tight text-foreground">V. Dhavande</span>
+          <span className="text-xl font-bold tracking-tight text-foreground">Vikas</span>
         </Link>
 
         <nav className="hidden md:flex">

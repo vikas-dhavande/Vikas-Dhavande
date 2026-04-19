@@ -80,7 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton className="text-muted-foreground">
-               <span className="text-xs">© 2026 V. Dhavande</span>
+               <span className="text-xs">© 2026 Vikas</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
