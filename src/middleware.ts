@@ -1,6 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { logger } from './src/lib/logger';
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -62,7 +61,7 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
 
   if (isProtectedRoute && !user) {
-    logger.security('Unauthorized access attempt blocked', {
+    console.warn('[SECURITY] Unauthorized access attempt blocked', {
       path: request.nextUrl.pathname,
       ip: request.headers.get('x-forwarded-for') || 'unknown',
     });
@@ -76,7 +75,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user) {
-    logger.info('Authenticated request', {
+    console.info('[INFO] Authenticated request', {
       path: request.nextUrl.pathname,
       userId: user.id,
     });
@@ -85,15 +84,8 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
+
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  matcher: ['/resources/:path*', '/dashboard/:path*'],
 };
+

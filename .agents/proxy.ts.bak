@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { logger } from './src/lib/logger';
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
@@ -54,7 +55,32 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Protected routes
+  const protectedRoutes = ['/resources', '/dashboard'];
+  const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
+
+  if (isProtectedRoute && !user) {
+    logger.security('Unauthorized access attempt blocked', {
+      path: request.nextUrl.pathname,
+      ip: request.headers.get('x-forwarded-for') || 'unknown',
+    });
+    
+    // Redirect to home with login parameter to trigger login modal
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    url.searchParams.set('login', 'true');
+    url.searchParams.set('redirect', request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+
+  if (user) {
+    logger.info('Authenticated request', {
+      path: request.nextUrl.pathname,
+      userId: user.id,
+    });
+  }
 
   return response;
 }
