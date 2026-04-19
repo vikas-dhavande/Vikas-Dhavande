@@ -33,10 +33,6 @@ interface UserAccountNavProps {
 export function UserAccountNav({ user }: UserAccountNavProps) {
   const { logout } = useAuth();
 
-  const handleAction = (action: string) => {
-    window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: action }));
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -66,58 +62,37 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="py-1">
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/profile" className="flex items-center gap-3 cursor-pointer w-full">
-              <div className="flex size-7 items-center justify-center rounded-md bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
+            <Link href="/dashboard/profile" className="flex items-center gap-3 cursor-pointer w-full text-foreground hover:text-primary transition-colors">
+              <div className="flex size-7 items-center justify-center rounded-md bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 shadow-sm border border-blue-500/10">
                 <UserIcon className="size-4" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-medium">My Profile</span>
-                <span className="text-[10px] text-muted-foreground leading-tight">Personal information</span>
+              <div className="flex flex-col gap-0.5">
+                <span className="font-semibold text-sm">Account Settings</span>
+                <span className="text-[10px] text-muted-foreground leading-tight">Manage profile & security</span>
               </div>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard" className="flex items-center gap-3 cursor-pointer w-full">
-              <div className="flex size-7 items-center justify-center rounded-md bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400">
+            <Link href="/dashboard" className="flex items-center gap-3 cursor-pointer w-full text-foreground hover:text-purple-600 transition-colors">
+              <div className="flex size-7 items-center justify-center rounded-md bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 shadow-sm border border-purple-500/10">
                 <LayoutDashboard className="size-4" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-medium">Dashboard</span>
-                <span className="text-[10px] text-muted-foreground leading-tight">Activity & analytics</span>
+              <div className="flex flex-col gap-0.5">
+                <span className="font-semibold text-sm">Dashboard</span>
+                <span className="text-[10px] text-muted-foreground leading-tight">View activity & projects</span>
               </div>
             </Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup className="py-1">
-          <DropdownMenuItem onClick={() => handleAction('password')} className="flex items-center gap-3 cursor-pointer">
-            <div className="flex size-7 items-center justify-center rounded-md bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
-              <LockIcon className="size-4" />
-            </div>
-            <span className="font-medium text-sm">Change Password</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleAction('email')} className="flex items-center gap-3 cursor-pointer">
-            <div className="flex size-7 items-center justify-center rounded-md bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400">
-              <MailIcon className="size-4" />
-            </div>
-            <span className="font-medium text-sm">Update Email</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleAction('image')} className="flex items-center gap-3 cursor-pointer">
-            <div className="flex size-7 items-center justify-center rounded-md bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400">
-              <ImageIcon className="size-4" />
-            </div>
-            <span className="font-medium text-sm">Update Profile Image</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           onClick={() => logout()} 
-          className="flex items-center gap-3 mt-1 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+          className="flex items-center gap-3 mt-1 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive group/logout font-medium"
         >
-          <div className="flex size-7 items-center justify-center rounded-md bg-destructive/10">
+          <div className="flex size-7 items-center justify-center rounded-md bg-destructive/5 group-hover/logout:bg-destructive/10 transition-colors">
             <LogOutIcon className="size-4" />
           </div>
-          <span className="font-bold text-sm">Sign Out</span>
+          <span className="text-sm">Sign Out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

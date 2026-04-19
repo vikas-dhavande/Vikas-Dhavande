@@ -141,7 +141,7 @@ export default function FloatingIconsHeroDemo() {
       title="Hi, I’m Vikas 👋"
       subtitle=""
       ctaText="Explore Platform"
-      ctaHref="#"
+      ctaHref="/blog"
       icons={demoIcons}
     />
   );

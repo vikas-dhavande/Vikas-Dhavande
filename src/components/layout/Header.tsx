@@ -12,10 +12,7 @@ import {
   Menu, 
   X, 
   User as UserIcon, 
-  LayoutDashboard, 
-  Lock, 
-  Mail, 
-  Image as ImageIcon 
+  LayoutDashboard
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { ToggleTheme } from '../ui/toggle-theme';
@@ -29,7 +26,6 @@ import {
 } from '../ui/navigation-menu';
 
 import { UserAccountNav } from './UserAccountNav';
-import { ProfileModals } from '../auth/ProfileModals';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -142,14 +138,14 @@ export default function Header() {
             {isAuthenticated && user && (
               <div className="flex flex-col gap-3">
                 <div className="h-px bg-border/50 my-2 mx-4" />
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] px-4 opacity-70">Account Management</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] px-4 opacity-70">Account</p>
                 
                 <Link
                   href="/dashboard/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold active:scale-[0.98]"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 shadow-sm">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 shadow-sm border border-blue-500/10">
                     <UserIcon className="h-5 w-5" />
                   </div>
                   My Profile
@@ -160,50 +156,11 @@ export default function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold active:scale-[0.98]"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 shadow-sm">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 text-purple-600 shadow-sm border border-purple-500/10">
                     <LayoutDashboard className="h-5 w-5" />
                   </div>
                   Dashboard
                 </Link>
-
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'password' }));
-                  }}
-                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold text-left w-full active:scale-[0.98]"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-600 shadow-sm">
-                    <Lock className="h-5 w-5" aria-hidden="true" />
-                  </div>
-                  Change Password
-                </button>
-
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'email' }));
-                  }}
-                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold text-left w-full active:scale-[0.98]"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 text-green-600 shadow-sm">
-                    <Mail className="h-5 w-5" />
-                  </div>
-                  Update Email
-                </button>
-
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'image' }));
-                  }}
-                  className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold text-left w-full active:scale-[0.98]"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-600 shadow-sm">
-                    <ImageIcon className="h-5 w-5" />
-                  </div>
-                  Update Profile Image
-                </button>
 
                 <div className="h-px bg-border/50 my-2 mx-4" />
 
@@ -212,7 +169,6 @@ export default function Header() {
                     setIsMobileMenuOpen(false);
                     logout();
                   }}
-                  // Wait, I need to destructure 'logout' from useAuth in the Header component
                   className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-red-500/20 hover:bg-red-500/5 transition-all text-lg font-bold text-red-500 w-full active:scale-[0.98]"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-500 shadow-sm">
@@ -234,7 +190,6 @@ export default function Header() {
           loading={loading} 
         />
       </React.Suspense>
-      <ProfileModals />
     </header>
   );
 }

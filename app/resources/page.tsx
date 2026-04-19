@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth, OAuthProvider } from '../../src/hooks/useAuth';
-import { FileText, Lock, ExternalLink, Loader2, ShieldAlert } from 'lucide-react';
+import { FileText, Lock, ExternalLink, Loader2, ShieldAlert, Download, Folder, ChevronRight, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import IconBreadcrumbs from '../../src/components/IconBreadcrumbs';
 import { logger } from '../../src/lib/logger';
@@ -22,6 +22,7 @@ export default function Resources() {
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [folderStack, setFolderStack] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -29,13 +30,17 @@ export default function Resources() {
     }
   }, [isAuthenticated]);
 
-  const fetchFiles = async () => {
+  const fetchFiles = async (folderId?: string) => {
     setFilesLoading(true);
     setError(null);
-    logger.info('Fetching drive files', { path: '/resources' });
+    logger.info('Fetching drive files', { path: '/resources', folderId });
 
     try {
-      const res = await fetch('/api/drive/files');
+      const url = new URL('/api/drive/files', window.location.origin);
+      if (folderId) {
+        url.searchParams.set('folderId', folderId);
+      }
+      const res = await fetch(url.toString());
       const data = await res.json();
 
       if (!res.ok) {
@@ -51,6 +56,29 @@ export default function Resources() {
       setFilesLoading(false);
     }
   };
+
+  const handleFolderClick = (folder: DriveFile) => {
+    setFolderStack(prev => [...prev, { id: folder.id, name: folder.name }]);
+    void fetchFiles(folder.id);
+  };
+
+  const handleBackClick = () => {
+    const newStack = [...folderStack];
+    newStack.pop();
+    setFolderStack(newStack);
+    const parentFolder = newStack[newStack.length - 1];
+    void fetchFiles(parentFolder?.id);
+  };
+
+  const handleDownload = (file: DriveFile) => {
+    // Note: Using webViewLink for download-like experience since Google Drive 
+    // files (Docs, Sheets) don't have a direct download URL without export.
+    // For binary files, this URL can be constructed if needed.
+    window.open(file.webViewLink, '_blank');
+    logger.info('File download/view initiated', { fileId: file.id, fileName: file.name });
+  };
+
+  const isFolder = (mimeType: string) => mimeType === 'application/vnd.google-apps.folder';
 
   const handleProviderLogin = (provider: OAuthProvider) => {
     logger.info('Initiating provider login from resources page', { provider });
@@ -115,13 +143,28 @@ export default function Resources() {
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Cloud Architecture & Resources</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isAuthenticated ? 'Connected with Google authentication' : 'Showing your public Google Drive resources'}
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">my cloude resource</h1>
+            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+              {folderStack.length > 0 && (
+                <button 
+                  onClick={handleBackClick}
+                  className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                >
+                  <ChevronLeft className="h-4 w-4" /> Back
+                </button>
+              )}
+              {folderStack.length > 0 ? (
+                <span className="flex items-center gap-1">
+                  <ChevronRight className="h-3.5 w-3.5 opacity-50" />
+                  {folderStack[folderStack.length - 1].name}
+                </span>
+              ) : (
+                isAuthenticated ? 'Connected with Google authentication' : 'Showing your public Google Drive resources'
+              )}
             </p>
           </div>
           <button 
-            onClick={fetchFiles}
+            onClick={() => fetchFiles(folderStack[folderStack.length - 1]?.id)}
             disabled={filesLoading}
             className="rounded-full bg-card border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
           >
@@ -173,22 +216,46 @@ export default function Resources() {
                       className="hover:bg-muted/50 transition-colors group"
                     >
                       <td className="px-6 py-4 flex items-center gap-3">
-                        <img src={file.iconLink || ''} alt="" className="w-4 h-4 object-contain" referrerPolicy="no-referrer" />
-                        <span className="font-medium text-foreground truncate max-w-[200px] sm:max-w-[400px]">
-                          {file.name}
-                        </span>
+                        {isFolder(file.mimeType) ? (
+                          <Folder className="w-4 h-4 text-primary fill-primary/10" />
+                        ) : (
+                          <img src={file.iconLink || ''} alt="" className="w-4 h-4 object-contain" referrerPolicy="no-referrer" />
+                        )}
+                        {isFolder(file.mimeType) ? (
+                          <button 
+                            onClick={() => handleFolderClick(file)}
+                            className="font-medium text-foreground hover:text-primary transition-colors text-left truncate max-w-[200px] sm:max-w-[400px]"
+                          >
+                            {file.name}
+                          </button>
+                        ) : (
+                          <span className="font-medium text-foreground truncate max-w-[200px] sm:max-w-[400px]">
+                            {file.name}
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-muted-foreground">{formatDate(file.modifiedTime)}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{formatSize(file.size)}</td>
+                      <td className="px-6 py-4 text-muted-foreground">{isFolder(file.mimeType) ? '--' : formatSize(file.size)}</td>
                       <td className="px-6 py-4 text-right">
-                        <a 
-                          href={file.webViewLink} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 text-primary text-sm font-medium hover:text-primary-dark"
-                        >
-                          Open <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
+                        <div className="flex items-center justify-end gap-2">
+                          {!isFolder(file.mimeType) && (
+                            <button
+                              onClick={() => handleDownload(file)}
+                              className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
+                              title="Download file"
+                            >
+                              <Download className="h-4 w-4" />
+                            </button>
+                          )}
+                          <a 
+                            href={file.webViewLink} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 text-primary text-sm font-medium hover:text-primary-dark p-2"
+                          >
+                            {isFolder(file.mimeType) ? 'Open Folder' : 'Open'} <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        </div>
                       </td>
                     </motion.tr>
                   ))}

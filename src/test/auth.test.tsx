@@ -1,8 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { UserAccountNav } from '@/components/layout/UserAccountNav';
-import { ProfileModals } from '@/components/auth/ProfileModals';
-import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import * as React from 'react';
 
 // Mock useAuth hook
@@ -21,7 +20,7 @@ const mockUser = {
   picture: 'https://example.com/avatar.jpg',
 };
 
-describe('Auth & Profile Flows', () => {
+describe('Auth & Profile Navigation', () => {
   const mockLogout = vi.fn();
   const mockCheckAuth = vi.fn();
 
@@ -50,63 +49,14 @@ describe('Auth & Profile Flows', () => {
     expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 
-  describe('Profile Modals', () => {
-    it('Password modal validates matching passwords', async () => {
-      render(<ProfileModals />);
-      
-      // Trigger modal via event
-      window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'password' }));
+  it('Account Settings link points to profile page', async () => {
+    render(<UserAccountNav user={mockUser} />);
+    
+    // Open dropdown
+    const trigger = screen.getByRole('button', { name: /test user/i });
+    fireEvent.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.getByText(/change password/i)).toBeInTheDocument();
-      });
-
-      const passwordInput = screen.getByLabelText(/^new password/i);
-      const confirmInput = screen.getByLabelText(/confirm password/i);
-      const submitBtn = screen.getByRole('button', { name: /update password/i });
-
-      fireEvent.change(passwordInput, { target: { value: 'password123' } });
-      fireEvent.change(confirmInput, { target: { value: 'different' } });
-      fireEvent.click(submitBtn);
-
-      expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
-    });
-
-    it('Password modal validates password length', async () => {
-      render(<ProfileModals />);
-      window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'password' }));
-
-      await waitFor(() => screen.getByText(/change password/i));
-
-      const passwordInput = screen.getByLabelText(/^new password/i);
-      const confirmInput = screen.getByLabelText(/confirm password/i);
-      const submitBtn = screen.getByRole('button', { name: /update password/i });
-
-      fireEvent.change(passwordInput, { target: { value: '123' } });
-      fireEvent.change(confirmInput, { target: { value: '123' } });
-      fireEvent.click(submitBtn);
-
-      expect(screen.getByText(/password must be at least 6 characters/i)).toBeInTheDocument();
-    });
-
-    it('Email modal pre-fills current email', async () => {
-      render(<ProfileModals />);
-      window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'email' }));
-
-      await waitFor(() => {
-        const emailInput = screen.getByLabelText(/email address/i) as HTMLInputElement;
-        expect(emailInput.value).toBe(mockUser.email);
-      });
-    });
-
-    it('Image modal pre-fills current image URL', async () => {
-      render(<ProfileModals />);
-      window.dispatchEvent(new CustomEvent('open-profile-modal', { detail: 'image' }));
-
-      await waitFor(() => {
-        const imageInput = screen.getByLabelText(/image url/i) as HTMLInputElement;
-        expect(imageInput.value).toBe(mockUser.picture);
-      });
-    });
+    const profileLink = screen.getByRole('link', { name: /account settings/i });
+    expect(profileLink).toHaveAttribute('href', '/dashboard/profile');
   });
 });
