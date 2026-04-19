@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { logger } from './lib/logger';
+import { logger } from './src/lib/logger';
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
