@@ -22,10 +22,8 @@ export async function GET(request: Request) {
     const tokens = parseStoredTokens(request);
     const apiKey = process.env.GOOGLE_API_KEY;
     const url = new URL(request.url);
-    const folderId =
-      url.searchParams.get('folderId')?.trim().replace(/'/g, "\\'") ||
-      process.env.GOOGLE_DRIVE_FOLDER_ID?.trim().replace(/'/g, "\\'") ||
-      null;
+    const folderIdRaw = url.searchParams.get('folderId') || process.env.GOOGLE_DRIVE_FOLDER_ID;
+    const folderId = folderIdRaw?.trim().replace(/['\\]/g, '') || null;
 
     if (!tokens && !apiKey) {
       return jsonResponse({ error: 'Unauthorized: No tokens or API key provided' }, { status: 401 });

@@ -81,6 +81,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setAuthState({ isAuthenticated: false, user: null, loading: false });
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -103,21 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) console.error('Error signing in with Github:', error.message);
   };
 
-  const login = () => {
-    // This function can be used to trigger the modal if we pass a state down
-    // For now, we'll implement the actual logic in the modal component
-  };
-
-  const logout = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ ...authState, login, signInWithGoogle, signInWithGithub, logout, checkAuth }}>
+    <AuthContext.Provider value={{ ...authState, login: () => {}, signInWithGoogle, signInWithGithub, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );
