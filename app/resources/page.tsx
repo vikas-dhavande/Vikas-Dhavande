@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../src/hooks/useAuth';
-import { FileText, Lock, ExternalLink, Loader2 } from 'lucide-react';
+import { useAuth, OAuthProvider } from '../../src/hooks/useAuth';
+import { FileText, Lock, ExternalLink, Loader2, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 import IconBreadcrumbs from '../../src/components/IconBreadcrumbs';
+import { logger } from '../../src/lib/logger';
 
 interface DriveFile {
   id: string;
@@ -17,53 +18,43 @@ interface DriveFile {
 }
 
 export default function Resources() {
-  const { isAuthenticated, signInWithGoogle } = useAuth();
+  const { isAuthenticated, signInWithProvider, loading: authLoading } = useAuth();
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
-  const [authRequired, setAuthRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchFiles();
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated && authRequired) {
+    if (isAuthenticated) {
       void fetchFiles();
     }
-  }, [authRequired, isAuthenticated]);
+  }, [isAuthenticated]);
 
   const fetchFiles = async () => {
     setFilesLoading(true);
     setError(null);
+    logger.info('Fetching drive files', { path: '/resources' });
 
     try {
       const res = await fetch('/api/drive/files');
-      const contentType = res.headers.get('content-type') || '';
-      const isJson = contentType.includes('application/json');
-      const data = isJson ? await res.json() : null;
+      const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 401) {
-          setAuthRequired(true);
-          setFiles([]);
-          return;
-        }
-
-        throw new Error((data && data.error) || `Drive API returned ${res.status}`);
+        throw new Error(data.error || `Drive API returned ${res.status}`);
       }
 
-      if (!data) {
-        throw new Error('Drive API returned a non-JSON response');
-      }
-
-      setAuthRequired(false);
       setFiles(data.files || []);
+      logger.info('Drive files fetched successfully', { count: data.files?.length || 0 });
     } catch (err: any) {
+      logger.error('Error fetching drive files', { error: err.message });
       setError(err.message || 'An error occurred while fetching files');
     } finally {
       setFilesLoading(false);
     }
+  };
+
+  const handleProviderLogin = (provider: OAuthProvider) => {
+    logger.info('Initiating provider login from resources page', { provider });
+    void signInWithProvider(provider);
   };
 
   const formatSize = (bytes?: string) => {
@@ -81,22 +72,38 @@ export default function Resources() {
     });
   };
 
-  if (authRequired && !isAuthenticated) {
+  if (authLoading) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Lock className="h-10 w-10 text-primary" />
+        <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <ShieldAlert className="h-10 w-10 text-destructive" />
         </div>
-        <h2 className="text-3xl font-bold text-foreground mb-4">Secure Network Resources</h2>
+        <h2 className="text-3xl font-bold text-foreground mb-4">Restricted Access</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-          This Drive source requires Google authentication. Sign in to load the connected files.
+          This area contains sensitive cloud architecture resources and requires authentication.
         </p>
-        <button 
-          onClick={() => void signInWithGoogle()}
-          className="inline-flex flex-row items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-dark transition-colors shadow-lg"
-        >
-          Authenticate via Google
-        </button>
+        <div className="flex flex-wrap justify-center gap-4">
+          <button 
+            onClick={() => handleProviderLogin('google')}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors shadow-lg"
+          >
+            Sign in with Google
+          </button>
+          <button 
+            onClick={() => handleProviderLogin('github')}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-card px-8 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+          >
+            Sign in with GitHub
+          </button>
+        </div>
       </div>
     );
   }

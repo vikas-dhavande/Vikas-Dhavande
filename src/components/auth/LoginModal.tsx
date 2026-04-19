@@ -10,7 +10,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Github, Globe, Chrome } from "lucide-react";
+import { Github, Globe, Chrome, Facebook, Component } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -18,16 +18,11 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
-  const { signInWithGoogle, signInWithGithub } = useAuth();
+  const { signInWithProvider } = useAuth();
   const [email, setEmail] = React.useState("");
 
-  const handleGoogleLogin = async () => {
-    await signInWithGoogle();
-    onOpenChange(false);
-  };
-
-  const handleGithubLogin = async () => {
-    await signInWithGithub();
+  const handleProviderLogin = async (provider: any) => {
+    await signInWithProvider(provider);
     onOpenChange(false);
   };
 
@@ -69,58 +64,76 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
           </div>
 
           {/* Right Side: Login Form */}
-          <div className="flex-1 flex flex-col justify-center p-8 md:p-12 bg-card">
-            <div className="mx-auto w-full max-w-[320px] space-y-8">
-              <div className="space-y-2">
+          <div className="flex-1 flex flex-col justify-center p-8 md:p-12 bg-card overflow-y-auto">
+            <div className="mx-auto w-full max-w-[320px] space-y-6">
+              <div className="space-y-2 text-center md:text-left">
                 <DialogTitle className="text-2xl font-bold tracking-tight">Sign in</DialogTitle>
                 <DialogDescription>
                   Choose your preferred authentication provider.
                 </DialogDescription>
               </div>
 
-              <div className="grid gap-4">
+              <div className="grid gap-3">
                 <Button 
                   variant="outline" 
-                  className="w-full h-11 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium"
-                  onClick={handleGoogleLogin}
+                  className="w-full h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium text-xs"
+                  onClick={() => handleProviderLogin('google')}
                 >
                   <Chrome className="w-4 h-4" />
                   Continue with Google
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full h-11 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium"
-                  onClick={handleGithubLogin}
+                  className="w-full h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium text-xs"
+                  onClick={() => handleProviderLogin('github')}
                 >
                   <Github className="w-4 h-4" />
                   Continue with GitHub
                 </Button>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    variant="outline" 
+                    className="h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-2 font-medium text-[10px]"
+                    onClick={() => handleProviderLogin('facebook')}
+                  >
+                    <Facebook className="w-3.5 h-3.5" />
+                    Facebook
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-2 font-medium text-[10px]"
+                    onClick={() => handleProviderLogin('azure')}
+                  >
+                    <Component className="w-3.5 h-3.5" />
+                    Microsoft
+                  </Button>
+                </div>
               </div>
 
-              <div className="relative flex items-center py-2">
+              <div className="relative flex items-center py-1">
                 <div className="flex-grow border-t border-border/40"></div>
-                <span className="flex-shrink mx-4 text-xs text-muted-foreground uppercase tracking-widest font-semibold">Or</span>
+                <span className="flex-shrink mx-4 text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Or</span>
                 <div className="flex-grow border-t border-border/40"></div>
               </div>
 
-              <div className="grid gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-xs uppercase tracking-wider text-muted-foreground">Email address</Label>
+              <div className="grid gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-[10px] uppercase tracking-wider text-muted-foreground">Email address</Label>
                   <Input 
                     id="email" 
                     placeholder="name@example.com" 
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-transparent border-border/60 focus:ring-primary/20"
+                    className="h-9 bg-transparent border-border/60 focus:ring-primary/20 text-sm"
                   />
                 </div>
-                <Button className="w-full h-11 font-semibold" disabled={!email}>
+                <Button className="w-full h-10 font-semibold text-xs" disabled={!email}>
                   Continue with Email
                 </Button>
               </div>
 
-              <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+              <p className="text-center text-[10px] leading-relaxed text-muted-foreground">
                 By clicking continue, you agree to our{" "}
                 <a href="#" className="underline underline-offset-4 hover:text-primary transition-colors">
                   Terms of Service

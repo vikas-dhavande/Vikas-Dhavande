@@ -18,9 +18,18 @@ import {
 import { UserAccountNav } from './UserAccountNav';
 import { ProfileModals } from '../auth/ProfileModals';
 
+import { useSearchParams } from 'next/navigation';
+
 export default function Header() {
   const { isAuthenticated, user, loading } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
+  const searchParams = useSearchParams();
+
+  React.useEffect(() => {
+    if (searchParams.get('login') === 'true' && !isAuthenticated && !loading) {
+      setIsLoginModalOpen(true);
+    }
+  }, [searchParams, isAuthenticated, loading]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">

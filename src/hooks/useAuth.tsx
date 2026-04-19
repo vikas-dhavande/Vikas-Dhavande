@@ -3,9 +3,13 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { AuthState, User } from '../types';
 import { getSupabase } from '../lib/supabase';
+import { logger } from '../lib/logger';
+
+export type OAuthProvider = 'google' | 'github' | 'facebook' | 'azure';
 
 interface AuthContextType extends AuthState {
-  login: () => void; // This will now typically open the modal, but we'll keep the signature
+  login: () => void;
+  signInWithProvider: (provider: OAuthProvider) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithGithub: () => Promise<void>;
   logout: () => Promise<void>;
@@ -50,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (error) {
-      console.error('Error checking auth session:', error);
+      logger.error('Error checking auth session', { error });
       setAuthState({ isAuthenticated: false, user: null, loading: false });
     }
   };
@@ -60,14 +64,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void checkAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
+        if (event === 'SIGNED_IN') {
+          logger.info('User signed in', { userId: session.user.id, provider: session.user.app_metadata.provider });
+        }
         setAuthState({
           isAuthenticated: true,
           user: mapSupabaseUser(session.user),
           loading: false,
         });
       } else {
+        if (event === 'SIGNED_OUT') {
+          logger.info('User signed out');
+        }
         setAuthState({
           isAuthenticated: false,
           user: null,
@@ -87,34 +97,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       setAuthState({ isAuthenticated: false, user: null, loading: false });
     } catch (error) {
-      console.error('Error signing out:', error);
+      logger.error('Error signing out', { error });
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithProvider = async (provider: OAuthProvider) => {
+    logger.info('Initiating OAuth login', { provider });
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        // For Google Drive integration, you might need extra scopes
-        // scopes: 'https://www.googleapis.com/auth/drive.readonly'
       }
     });
-    if (error) console.error('Error signing in with Google:', error.message);
+    if (error) {
+      logger.error('Error during OAuth login', { provider, error: error.message });
+    }
   };
 
-  const signInWithGithub = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      }
-    });
-    if (error) console.error('Error signing in with Github:', error.message);
-  };
+  const signInWithGoogle = () => signInWithProvider('google');
+  const signInWithGithub = () => signInWithProvider('github');
 
   return (
-    <AuthContext.Provider value={{ ...authState, login: () => {}, signInWithGoogle, signInWithGithub, logout, checkAuth }}>
+    <AuthContext.Provider value={{ ...authState, login: () => {}, signInWithProvider, signInWithGoogle, signInWithGithub, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );
