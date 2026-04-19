@@ -86,5 +86,5 @@ A modular authentication component library for React, supporting multi-provider 
 
 <p align="center">
   <i>"Code is poetry, and I'm here to write some bestsellers."</i><br>
-  <b>© 2026 Vikas Dhavande</b>
+  <b>© 2026 Made vikas dhavande, copyright 2026</b>
 </p>

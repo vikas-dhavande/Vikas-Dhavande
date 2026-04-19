@@ -217,30 +217,7 @@ export default function Footer() {
 
       <div className="mx-auto mb-10 mt-10 flex flex-col justify-between text-center text-xs md:max-w-7xl">
         <div className="flex flex-row items-center justify-center gap-1 text-slate-600 dark:text-slate-400">
-          <span> © </span>
-          <span>{new Date().getFullYear()}</span>
-          <span>Made with</span>
-          <span className="text-red-600 mx-1 h-4 w-4 animate-pulse fill-red-600">
-            <DIcons.Heart />
-          </span>
-          <span> by </span>
-          <span className="hover:text-primary cursor-pointer text-black dark:text-white">
-            <a
-              aria-label="Author"
-              className="font-bold underline underline-offset-4"
-              href="https://www.instagram.com/aliimam.in/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Ali Imam
-            </a>
-          </span>
-          <span className="mx-2">-</span>
-          <span className="hover:text-primary cursor-pointer text-slate-600 dark:text-slate-400">
-            <Link href="/">
-              Designali
-            </Link>
-          </span>
+          <span> © 2026 Made vikas dhavande, copyright 2026 </span>
         </div>
       </div>
     </footer>
