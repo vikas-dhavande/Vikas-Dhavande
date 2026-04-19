@@ -15,8 +15,11 @@ import {
   navigationMenuTriggerStyle,
 } from '../ui/navigation-menu';
 
+import { UserAccountNav } from './UserAccountNav';
+import { ProfileModals } from '../auth/ProfileModals';
+
 export default function Header() {
-  const { isAuthenticated, user, logout, loading } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
 
   return (
@@ -60,25 +63,8 @@ export default function Header() {
             <ToggleTheme />
           </div>
           {!loading && (
-            isAuthenticated ? (
-              <div className="flex items-center gap-4">
-                <div className="hidden sm:flex items-center gap-3">
-                  <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/20 transition-all cursor-pointer">
-                    <AvatarImage src={user?.picture} alt={user?.name || 'User'} referrerPolicy="no-referrer" />
-                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {user?.name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm font-medium text-foreground">{user?.name}</span>
-                </div>
-                <button
-                  onClick={logout}
-                  className="flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
+            isAuthenticated && user ? (
+              <UserAccountNav user={user} />
             ) : (
               <button
                 onClick={() => setIsLoginModalOpen(true)}
@@ -92,6 +78,7 @@ export default function Header() {
         </div>
       </div>
       <LoginModal isOpen={isLoginModalOpen} onOpenChange={setIsLoginModalOpen} />
+      <ProfileModals />
     </header>
   );
 }
