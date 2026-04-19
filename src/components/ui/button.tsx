@@ -53,10 +53,12 @@ function Button({
   ...props
 }: ButtonProps) {
   if (asChild) {
+    const { style, ...otherProps } = props as any
     return (
       <Slot
         className={cn(buttonVariants({ variant, size, className }))}
-        {...props}
+        style={typeof style === "function" ? undefined : style}
+        {...otherProps}
       />
     )
   }
