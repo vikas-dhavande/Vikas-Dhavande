@@ -39,7 +39,9 @@ export default function Resources() {
 
     try {
       const res = await fetch('/api/drive/files');
-      const data = await res.json();
+      const contentType = res.headers.get('content-type') || '';
+      const isJson = contentType.includes('application/json');
+      const data = isJson ? await res.json() : null;
 
       if (!res.ok) {
         if (res.status === 401) {
@@ -48,7 +50,11 @@ export default function Resources() {
           return;
         }
 
-        throw new Error(data.error || 'Failed to fetch files');
+        throw new Error((data && data.error) || `Drive API returned ${res.status}`);
+      }
+
+      if (!data) {
+        throw new Error('Drive API returned a non-JSON response');
       }
 
       setAuthRequired(false);

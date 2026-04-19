@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
-import { jsonResponse } from '../_lib/responses';
-import { createOAuthClient, parseStoredTokens } from '../_lib/google-auth';
+import { jsonResponse } from '../../../../api/_lib/responses';
+import { createOAuthClient, parseStoredTokens } from '../../../../api/_lib/google-auth';
 
 interface DriveListResponse {
   error?: {
@@ -64,8 +64,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // Fallback to API Key for public-folder access. Forward the browser referer so
-    // referrer-restricted Google API keys keep working when the request is proxied.
     if (files.length === 0 && apiKey) {
       const driveUrl = new URL('https://www.googleapis.com/drive/v3/files');
       driveUrl.searchParams.set('fields', listOptions.fields);
@@ -96,4 +94,3 @@ export async function GET(request: Request) {
     return jsonResponse({ error: message }, { status: 500 });
   }
 }
-
