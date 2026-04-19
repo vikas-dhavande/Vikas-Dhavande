@@ -63,7 +63,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
   };
 
   return (
-    <NavigationMenu align="end" open={isOpen} onOpenChange={setIsOpen}>
+    <NavigationMenu align="end">
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger className="flex items-center gap-2 p-1 hover:bg-transparent data-[state=open]:bg-transparent">

@@ -8,7 +8,7 @@ const ENV_FILES = ['.env', '.env.local'];
 let loaded = false;
 
 function loadLocalEnv(mode = process.env.NODE_ENV ?? 'development') {
-  if (loaded) {
+  if (loaded || process.env.NODE_ENV === 'production') {
     return;
   }
 
