@@ -5,6 +5,7 @@ import { ThemeProvider } from "../src/components/theme-provider";
 import { AuthProvider } from "../src/hooks/useAuth";
 import Header from "../src/components/layout/Header";
 import Footer from "../src/components/layout/Footer";
+import { Toaster } from "../src/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -36,6 +37,7 @@ export default function RootLayout({
               </main>
               <Footer />
             </div>
+            <Toaster position="top-center" richColors />
             <SpeedInsights />
           </ThemeProvider>
         </AuthProvider>
