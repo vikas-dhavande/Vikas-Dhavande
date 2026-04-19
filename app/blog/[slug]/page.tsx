@@ -68,15 +68,11 @@ export default function BlogPost() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/">Home</Link>
-                  </BreadcrumbLink>
+                  <BreadcrumbLink render={<Link href="/" />}>Home</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/blog">Blog</Link>
-                  </BreadcrumbLink>
+                  <BreadcrumbLink render={<Link href="/blog" />}>Blog</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>

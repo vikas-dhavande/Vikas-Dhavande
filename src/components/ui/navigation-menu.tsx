@@ -1,5 +1,7 @@
 import * as React from "react"
 import { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/navigation-menu"
+import { useRender } from "@base-ui/react/use-render"
+import { mergeProps } from "@base-ui/react/merge-props"
 import { cva } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -124,18 +126,25 @@ function NavigationMenuPositioner({
 
 function NavigationMenuLink({
   className,
+  render,
   ...props
-}: NavigationMenuPrimitive.Link.Props) {
-  return (
-    <NavigationMenuPrimitive.Link
-      data-slot="navigation-menu-link"
-      className={cn(
-        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all outline-none hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
-      {...props}
-    />
-  )
+}: useRender.ComponentProps<typeof NavigationMenuPrimitive.Link>) {
+  return useRender({
+    component: NavigationMenuPrimitive.Link,
+    props: mergeProps(
+      {
+        className: cn(
+          "flex items-center gap-2 rounded-lg p-2 text-sm transition-all outline-none hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4",
+          className
+        ),
+      },
+      props
+    ),
+    render,
+    state: {
+      slot: "navigation-menu-link",
+    },
+  })
 }
 
 function NavigationMenuIndicator({

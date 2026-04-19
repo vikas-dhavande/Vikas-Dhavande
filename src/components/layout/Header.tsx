@@ -31,28 +31,24 @@ export default function Header() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                  <Link href="/">Home</Link>
+                <NavigationMenuLink render={<Link href="/" />} className={navigationMenuTriggerStyle()}>
+                  Home
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                  <Link href="/resources">
-                    <span className="inline-flex items-center gap-2">
-                      <Cloud className="h-4 w-4" />
-                      Resources
-                    </span>
-                  </Link>
+                <NavigationMenuLink render={<Link href="/resources" />} className={navigationMenuTriggerStyle()}>
+                  <span className="inline-flex items-center gap-2">
+                    <Cloud className="h-4 w-4" />
+                    Resources
+                  </span>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                  <Link href="/blog">
-                    <span className="inline-flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />
-                      Blog
-                    </span>
-                  </Link>
+                <NavigationMenuLink render={<Link href="/blog" />} className={navigationMenuTriggerStyle()}>
+                  <span className="inline-flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    Blog
+                  </span>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
