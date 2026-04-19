@@ -6,10 +6,10 @@ import { cn } from "../../lib/utils"
 const SidebarContext = React.createContext<{
   state: "expanded" | "collapsed"
   open: boolean
-  setOpen: (open: boolean) => void
+  setOpen: (open: boolean | ((open: boolean) => boolean)) => void
   isMobile: boolean
   openMobile: boolean
-  setOpenMobile: (open: boolean) => void
+  setOpenMobile: React.Dispatch<React.SetStateAction<boolean>>
   toggleSidebar: () => void
 } | null>(null)
 
@@ -60,7 +60,7 @@ const SidebarProvider = React.forwardRef<
       return setOpen((prev) => !prev)
     }, [setOpen])
 
-    const state = open ? "expanded" : "collapsed"
+    const state = (open ? "expanded" : "collapsed") as "expanded" | "collapsed"
 
     const contextValue = React.useMemo(
       () => ({
@@ -237,6 +237,8 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean
     isActive?: boolean
     variant?: "default" | "outline"
+    size?: "default" | "sm" | "lg"
+    tooltip?: string
   }
 >(({ className, asChild = false, isActive = false, variant = "default", ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
