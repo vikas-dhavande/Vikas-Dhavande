@@ -45,11 +45,11 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
             
             <div className="relative z-10 flex flex-col items-center text-center space-y-6">
               <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 shadow-xl">
-                 <Globe className="w-8 h-8 text-white" />
+                 <Globe className="w-8 h-8 text-primary-foreground" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Welcome Back</h2>
-                <p className="text-white/70 text-sm max-w-[240px] leading-relaxed">
+                <h2 className="text-3xl font-bold text-primary-foreground tracking-tight mb-2">Welcome Back</h2>
+                <p className="text-primary-foreground/70 text-sm max-w-[240px] leading-relaxed">
                   Access your synchronized workspace and cloud resources across all your devices.
                 </p>
               </div>
@@ -64,7 +64,7 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
             
             <div className="absolute bottom-8 left-8 flex items-center gap-2">
                <div className="h-1.5 w-1.5 rounded-full bg-white/40" />
-               <span className="text-[10px] font-medium text-white/40 uppercase tracking-widest">Antigravity Identity</span>
+               <span className="text-[10px] font-medium text-primary-foreground/40 uppercase tracking-widest">Antigravity Identity</span>
             </div>
           </div>
 

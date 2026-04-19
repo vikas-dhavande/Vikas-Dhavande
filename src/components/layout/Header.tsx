@@ -21,7 +21,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="flex h-16 w-full items-center justify-between px-4 sm:px-8 lg:px-10">
         <Link href="/" className="flex items-center gap-2">
           <Cpu className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold tracking-tight text-foreground">V. Dhavande</span>
@@ -82,7 +82,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors shadow-sm"
+                className="flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
               >
                 <LogIn className="h-4 w-4" />
                 <span>Sign In</span>
