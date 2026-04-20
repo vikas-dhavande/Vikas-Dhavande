@@ -41,9 +41,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        // Fetch profile with role
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError) {
+          logger.error('Error fetching user profile', { error: profileError });
+        }
+
         setAuthState({
           isAuthenticated: true,
-          user: mapSupabaseUser(session.user),
+          user: {
+            ...mapSupabaseUser(session.user)!,
+            role: profile?.role || 'user',
+          },
           loading: false,
         });
       } else {
@@ -64,14 +78,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void checkAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         if (event === 'SIGNED_IN') {
           logger.info('User signed in', { userId: session.user.id, provider: session.user.app_metadata.provider });
         }
+        
+        // Fetch profile with role on change
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
         setAuthState({
           isAuthenticated: true,
-          user: mapSupabaseUser(session.user),
+          user: {
+            ...mapSupabaseUser(session.user)!,
+            role: profile?.role || 'user',
+          },
           loading: false,
         });
       } else {

@@ -8,6 +8,8 @@ import Footer from "../src/components/layout/Footer";
 import { Toaster } from "../src/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import AnalyticsTracker from "../src/components/analytics/AnalyticsTracker";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,16 +33,19 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex min-h-screen flex-col font-sans">
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
-            <Toaster position="top-center" richColors />
-            <SpeedInsights />
-            <Analytics />
+            <TooltipProvider>
+              <div className="flex min-h-screen flex-col font-sans">
+                <Header />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+              <Toaster position="top-center" richColors />
+              <SpeedInsights />
+              <Analytics />
+              <AnalyticsTracker />
+            </TooltipProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

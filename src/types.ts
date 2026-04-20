@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name: string;
   picture: string;
+  role: 'user' | 'admin' | 'super_user';
 }
 
 export interface AuthState {

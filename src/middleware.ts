@@ -75,11 +75,33 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user) {
+    // Fetch user profile to check role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_user';
+
+    if (request.nextUrl.pathname.startsWith('/dashboard') && !isAdmin) {
+      console.warn('[SECURITY] Non-admin user attempted to access dashboard', {
+        path: request.nextUrl.pathname,
+        userId: user.id,
+        role: profile?.role,
+      });
+
+      // Redirect to home if not admin
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+
     console.info('[INFO] Authenticated request', {
       path: request.nextUrl.pathname,
       userId: user.id,
+      role: profile?.role,
     });
-  }
 
   return response;
 }
