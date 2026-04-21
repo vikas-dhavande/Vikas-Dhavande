@@ -41,6 +41,14 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".next",
+    "out",
+    "dist",
+    "graphify-out",
+    ".storybook",
+    "**/*.stories.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }
