@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "next dev identity-platform",
-    "build": "next build identity-platform",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=4096' next build identity-platform",
     "start": "next start identity-platform",
     "clean": "node -e \"require('fs').rmSync('identity-platform/.next', { recursive: true, force: true })\"",
     "lint": "next lint --dir identity-platform",
@@ -87,6 +87,7 @@
     "@vitest/browser-playwright": "^4.1.4",
     "@vitest/coverage-v8": "^4.1.4",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.1.0",
     "jsdom": "^29.0.2",
     "playwright": "^1.59.1",
     "storybook": "^10.3.5",
