@@ -35,7 +35,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <button className="flex items-center gap-2 p-1.5 rounded-full hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all outline-none group border border-transparent hover:border-border">
           <div className="flex items-center gap-3 pr-2">
             <Avatar className="size-8 ring-2 ring-border group-hover:ring-primary/20 transition-all shadow-sm">
@@ -61,7 +61,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="py-1">
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem>
             <Link href="/dashboard/profile" className="flex items-center gap-3 cursor-pointer w-full text-foreground hover:text-primary transition-colors">
               <div className="flex size-7 items-center justify-center rounded-md bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 shadow-sm border border-blue-500/10">
                 <UserIcon className="size-4" />
@@ -72,7 +72,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
               </div>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem>
             <Link href="/dashboard" className="flex items-center gap-3 cursor-pointer w-full text-foreground hover:text-purple-600 transition-colors">
               <div className="flex size-7 items-center justify-center rounded-md bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 shadow-sm border border-purple-500/10">
                 <LayoutDashboard className="size-4" />
