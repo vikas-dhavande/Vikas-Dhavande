@@ -2,11 +2,10 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
     const body = await req.json();
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -35,7 +34,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...body,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', id)
+      .eq('id', params.id)
       .select()
       .single();
 
@@ -47,10 +46,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -76,7 +74,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const { error } = await supabase
       .from('blogs')
       .delete()
-      .eq('id', id);
+      .eq('id', params.id);
 
     if (error) throw error;
 
