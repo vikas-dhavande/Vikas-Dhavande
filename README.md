@@ -70,16 +70,15 @@ A modular authentication component library for React, supporting multi-provider 
 
 ### 🚀 Deployment
 
-This project is configured for **GitHub Pages** deployment using GitHub Actions.
+This project is optimized for production hosting on **Vercel** and includes a fallback configuration for **GitHub Pages**.
 
-#### **Setup Instructions**
-1. **GitHub Repository Settings**:
-   - Go to `Settings > Pages`.
-   - Under `Build and deployment > Source`, select **GitHub Actions**.
-2. **Configuration**:
-   - Ensure the `basePath` in [next.config.js](file:///identity-platform/next.config.js) matches your repository name (currently set to `/Vikas-dhavande`).
-3. **Trigger Deployment**:
-   - Push your changes to the `main` branch, or manually trigger the `Deploy Next.js site to Pages` workflow in the `Actions` tab.
+- **Primary (Recommended):** [Vercel Deployment Guide](file:///DEPLOYMENT.md)
+- **Secondary:** GitHub Pages (configured via `.github/workflows/pages.yml`)
+
+#### **Quick Vercel Setup**
+1. Import the repository to Vercel.
+2. Set the root directory to `identity-platform`.
+3. Add environment variables listed in `identity-platform/.env.example`.
 
 ---
 
