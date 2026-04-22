@@ -68,21 +68,6 @@ A modular authentication component library for React, supporting multi-provider 
 
 ---
 
-### 🚀 Deployment
-
-This project is configured for **GitHub Pages** deployment using GitHub Actions.
-
-#### **Setup Instructions**
-1. **GitHub Repository Settings**:
-   - Go to `Settings > Pages`.
-   - Under `Build and deployment > Source`, select **GitHub Actions**.
-2. **Configuration**:
-   - Ensure the `basePath` in [next.config.js](file:///identity-platform/next.config.js) matches your repository name (currently set to `/Vikas-dhavande`).
-3. **Trigger Deployment**:
-   - Push your changes to the `main` branch, or manually trigger the `Deploy Next.js site to Pages` workflow in the `Actions` tab.
-
----
-
 ### 📫 Let's Connect!
 
 <p align="left">
