@@ -70,25 +70,15 @@ A modular authentication component library for React, supporting multi-provider 
 
 ### 🚀 Deployment
 
-This project is fully migrated to **GitHub Pages**. All Vercel-specific configurations have been removed in favor of a robust GitHub Actions CI/CD pipeline.
+This project is optimized for production hosting on **Vercel** and includes a fallback configuration for **GitHub Pages**.
 
-#### **Migration Summary**
-- **Hosting**: GitHub Pages (Static Hosting)
-- **CI/CD**: GitHub Actions ([pages.yml](file:///.github/workflows/pages.yml))
-- **Base URL**: `https://vikas-dhavande.github.io/Vikas-dhavande/`
+- **Primary (Recommended):** [Vercel Deployment Guide](file:///DEPLOYMENT.md)
+- **Secondary:** GitHub Pages (configured via `.github/workflows/pages.yml`)
 
-#### **Configuration Requirements**
-To ensure the deployment works, you must add the following **Secrets** to your GitHub Repository (`Settings > Secrets and variables > Actions`):
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `GOOGLE_API_KEY`
-- `GOOGLE_DRIVE_FOLDER_ID`
-
-#### **Setup Instructions**
-1. **GitHub Repository Settings**:
-   - Go to `Settings > Pages`.
-   - Under `Build and deployment > Source`, select **GitHub Actions**.
-2. **404 Handling**: The pipeline automatically generates a `404.html` to handle routing for Single Page Applications.
+#### **Quick Vercel Setup**
+1. Import the repository to Vercel.
+2. Set the root directory to `identity-platform`.
+3. Add environment variables listed in `identity-platform/.env.example`.
 
 ---
 

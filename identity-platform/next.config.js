@@ -1,9 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
-  basePath: '/Vikas-dhavande',
-  assetPrefix: '/Vikas-dhavande/',
+  // Static export is only used for GitHub Pages. 
+  // For Vercel/Production, we use the standard build.
+  output: process.env.GITHUB_PAGES ? 'export' : undefined,
+  basePath: process.env.GITHUB_PAGES ? '/Vikas-dhavande' : '',
+  assetPrefix: process.env.GITHUB_PAGES ? '/Vikas-dhavande/' : '',
   trailingSlash: true,
   images: {
     unoptimized: true,
