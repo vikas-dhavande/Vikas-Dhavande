@@ -1,0 +1,113 @@
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          });
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Protected routes
+  const protectedRoutes = ['/resources', '/dashboard'];
+  const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
+
+  if (isProtectedRoute && !user) {
+    console.warn('[SECURITY] Unauthorized access attempt blocked', {
+      path: request.nextUrl.pathname,
+      ip: request.headers.get('x-forwarded-for') || 'unknown',
+    });
+    
+    // Redirect to home with login parameter to trigger login modal
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    url.searchParams.set('login', 'true');
+    url.searchParams.set('redirect', request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+
+  if (user) {
+    // Fetch user profile to check role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_user';
+
+    if (request.nextUrl.pathname.startsWith('/dashboard') && !isAdmin) {
+      console.warn('[SECURITY] Non-admin user attempted to access dashboard', {
+        path: request.nextUrl.pathname,
+        userId: user.id,
+        role: profile?.role,
+      });
+
+      // Redirect to home if not admin
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+
+    console.info('[INFO] Authenticated request', {
+      path: request.nextUrl.pathname,
+      userId: user.id,
+      role: profile?.role,
+    });
+
+  return response;
+}
+
+
+export const config = {
+  matcher: ['/resources/:path*', '/dashboard/:path*', '/api/blog/:path*', '/api/storage/:path*', '/api/analytics/stats/:path*'],
+};
+
