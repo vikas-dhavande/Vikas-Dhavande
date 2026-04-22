@@ -34,9 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email: sbUser.email || '',
       name: sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email?.split('@')[0] || 'User',
       picture: sbUser.user_metadata?.avatar_url || sbUser.user_metadata?.picture || '',
-      role: 'user',
     };
-
   };
 
   const checkAuth = async () => {
