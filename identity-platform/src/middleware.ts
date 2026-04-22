@@ -102,7 +102,6 @@ export async function middleware(request: NextRequest) {
       userId: user.id,
       role: profile?.role,
     });
-  }
 
   return response;
 }

@@ -116,7 +116,7 @@ export default function PrivacyPage() {
                 <span className="px-3 py-1.5 rounded-full border border-border bg-muted/50 text-xs font-medium">Revoke Consent</span>
               </div>
               <p className="pt-2">
-                You can delete your account and all associated data at any time via the <strong>Dashboard &gt; Account</strong> settings. For any data-related requests, please contact us at <a href="mailto:contact@designali.in" className="text-primary hover:underline">contact@designali.in</a>.
+                You can delete your account and all associated data at any time via the <strong>Dashboard > Account</strong> settings. For any data-related requests, please contact us at <a href="mailto:contact@designali.in" className="text-primary hover:underline">contact@designali.in</a>.
               </p>
             </div>
           </section>
