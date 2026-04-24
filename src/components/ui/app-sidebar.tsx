@@ -33,8 +33,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="/blog">
+            <SidebarMenuButton size="lg">
+              <a href="/blog" className="flex items-center gap-2 w-full">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <BookOpen className="size-4" />
                 </div>
@@ -42,7 +42,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="truncate font-semibold">Dev Blog</span>
                   <span className="truncate text-xs">Insights & Tutorials</span>
                 </div>
-              </a>
+                </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

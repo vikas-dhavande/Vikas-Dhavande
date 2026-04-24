@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const supabase = getSupabase();
 
-  const mapSupabaseUser = (sbUser: any): User | null => {
+  const mapSupabaseUser = (sbUser: any): Omit<User, 'role'> | null => {
     if (!sbUser) return null;
     return {
       id: sbUser.id,

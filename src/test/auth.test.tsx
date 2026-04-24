@@ -31,6 +31,7 @@ const mockUser = {
   email: 'test@example.com',
   name: 'Test User',
   picture: 'https://example.com/avatar.jpg',
+  role: 'user' as const,
 };
 
 describe('Auth & Profile Navigation', () => {
