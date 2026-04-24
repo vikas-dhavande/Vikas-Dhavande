@@ -31,8 +31,7 @@ import {
 } from '../ui/sheet';
 
 import { UserAccountNav } from './UserAccountNav';
-
-import { useSearchParams } from 'next/navigation';
+import { LoginModalHandler } from '../auth/LoginModalHandler';
 
 function LoginModalHandler({ 
   onOpen: onOpenChange,
@@ -53,7 +52,6 @@ function LoginModalHandler({
 
   return null;
 }
-
 export default function Header() {
   const { isAuthenticated, user, loading, logout } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
