@@ -19,12 +19,13 @@ import { Blog as BlogType } from "../../../src/types";
 import { Calendar, User, Clock, ArrowLeft, BookOpen } from "lucide-react";
 import { calculateReadingTime } from "../../../src/lib/utils";
 
-export default async function BlogPost({ params }: { params: { slug: string } }) {
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("blogs")
     .select("*")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .single();
 
   if (error || !data) {
