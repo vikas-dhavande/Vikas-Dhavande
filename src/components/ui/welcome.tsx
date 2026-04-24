@@ -1,15 +1,12 @@
 import * as React from "react"; 
 import { motion, Variants } from "framer-motion"; 
 import { PlayCircle } from "lucide-react"; 
-import { cn } from "@/lib/utils"; // Your utility for merging Tailwind classes 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { ButtonPrimitive } from "@base-ui/react/button";
-import type { VariantProps } from "class-variance-authority";
-import { buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 // ButtonProps for action items
-export type ButtonProps = React.ComponentProps<typeof Button>; 
-import { Badge } from "@/components/ui/badge"; 
+export type ButtonProps = React.ComponentProps<typeof Button>;
  
 // Define the type for an action item 
 export interface ActionItem { 
