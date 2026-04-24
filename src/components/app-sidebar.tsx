@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from "react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -163,7 +165,7 @@ const data = {
   ],
 }
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   
   const userData = {
     name: user?.name || "User",

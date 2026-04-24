@@ -20,6 +20,17 @@ import { calculateReadingTime } from "../../src/lib/utils";
 
 export default async function BlogPage() {
   const supabase = await createClient();
+  if (!supabase) {
+    return (
+      <div className="mx-auto max-w-3xl p-8 text-center">
+        <h1 className="text-2xl font-bold">Blog temporarily unavailable</h1>
+        <p className="mt-2 text-muted-foreground">
+          Supabase environment variables are not configured for this deployment.
+        </p>
+      </div>
+    );
+  }
+
   const { data, error } = await supabase
     .from("blogs")
     .select("*")

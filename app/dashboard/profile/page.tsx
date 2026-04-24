@@ -98,6 +98,11 @@ export default function ProfilePage() {
     setLoading(true);
     try {
       const supabase = getSupabase();
+      if (!supabase) {
+        toast.error('Supabase is not configured');
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       toast.success('Password updated successfully');
@@ -121,6 +126,11 @@ export default function ProfilePage() {
     setLoading(true);
     try {
       const supabase = getSupabase();
+      if (!supabase) {
+        toast.error('Supabase is not configured');
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
       toast.success('Confirmation email sent to both old and new addresses');
@@ -169,6 +179,11 @@ export default function ProfilePage() {
     setLoading(true);
     try {
       const supabase = getSupabase();
+      if (!supabase) {
+        toast.error('Supabase is not configured');
+        return;
+      }
+
       const fileExt = avatarFile.name.split('.').pop();
       const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;

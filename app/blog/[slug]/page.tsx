@@ -22,6 +22,10 @@ import { calculateReadingTime } from "../../../src/lib/utils";
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
+  if (!supabase) {
+    notFound();
+  }
+
   const { data, error } = await supabase
     .from("blogs")
     .select("*")

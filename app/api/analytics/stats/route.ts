@@ -8,6 +8,9 @@ export async function GET(req: NextRequest) {
     const { range, startDate } = normaliseRange(rawRange);
 
     const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase is not configured' }, { status: 503 });
+    }
 
     // Fetch all events in range with path and session_id
     const { data: events, error } = await supabase

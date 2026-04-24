@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { ThemeProvider } from "../src/components/theme-provider";
 import { AuthProvider } from "../src/hooks/useAuth";
@@ -44,7 +45,9 @@ export default function RootLayout({
               <Toaster position="top-center" richColors />
               <SpeedInsights />
               <Analytics />
-              <AnalyticsTracker />
+              <Suspense fallback={null}>
+                <AnalyticsTracker />
+              </Suspense>
             </TooltipProvider>
           </ThemeProvider>
         </AuthProvider>
