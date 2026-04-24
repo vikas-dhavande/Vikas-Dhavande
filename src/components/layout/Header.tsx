@@ -33,25 +33,6 @@ import {
 import { UserAccountNav } from './UserAccountNav';
 import { LoginModalHandler } from '../auth/LoginModalHandler';
 
-function LoginModalHandler({ 
-  onOpen: onOpenChange,
-  isAuthenticated,
-  loading
-}: { 
-  onOpen: (open: boolean) => void;
-  isAuthenticated: boolean;
-  loading: boolean;
-}) {
-  const searchParams = useSearchParams();
-
-  React.useEffect(() => {
-    if (searchParams.get('login') === 'true' && !isAuthenticated && !loading) {
-      onOpenChange(true);
-    }
-  }, [searchParams, isAuthenticated, loading, onOpenChange]);
-
-  return null;
-}
 export default function Header() {
   const { isAuthenticated, user, loading, logout } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
