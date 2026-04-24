@@ -1,5 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase-server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -7,19 +6,20 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { event_name, path, session_id, user_agent, referrer, metadata } = body;
 
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    // Validate required fields
+    const missing: string[] = [];
+    if (!event_name) missing.push('event_name');
+    if (!path) missing.push('path');
+    if (!session_id) missing.push('session_id');
 
+    if (missing.length > 0) {
+      return NextResponse.json(
+        { error: `Missing required fields: ${missing.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     const { error } = await supabase

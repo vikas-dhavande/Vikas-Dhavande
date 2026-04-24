@@ -19,12 +19,15 @@ let s3Client: S3Client | null = null;
  */
 export function getS3Client() {
   if (!s3Client) {
+    if (!accessKeyId || !secretAccessKey || !endpoint) {
+      throw new Error("S3 client: missing required credentials");
+    }
     s3Client = new S3Client({
       region: region,
       endpoint: endpoint,
       credentials: {
-        accessKeyId: accessKeyId!,
-        secretAccessKey: secretAccessKey!,
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
       },
       // Supabase S3 is compatible but might require forcePathStyle depending on the bucket structure
       forcePathStyle: true,

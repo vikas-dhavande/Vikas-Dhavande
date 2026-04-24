@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { UserAccountNav } from '@/components/layout/UserAccountNav';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +13,19 @@ vi.mock('@/hooks/useAuth', async (importOriginal) => {
   };
 });
 
+// Mock the dropdown-menu components to avoid Base UI context requirements in tests
+vi.mock('@/components/ui/dropdown-menu', () => ({
+  DropdownMenu: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DropdownMenuTrigger: ({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) =>
+    asChild ? <>{children}</> : <button>{children}</button>,
+  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DropdownMenuGroup: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DropdownMenuItem: ({ children, onClick, asChild }: { children: React.ReactNode; onClick?: () => void; asChild?: boolean }) =>
+    asChild ? <>{children}</> : <div role="menuitem" onClick={onClick}>{children}</div>,
+  DropdownMenuLabel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DropdownMenuSeparator: () => <hr />,
+}));
+
 const mockUser = {
   id: '123',
   email: 'test@example.com',
@@ -22,7 +35,6 @@ const mockUser = {
 
 describe('Auth & Profile Navigation', () => {
   const mockLogout = vi.fn();
-  const mockCheckAuth = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -30,31 +42,21 @@ describe('Auth & Profile Navigation', () => {
       isAuthenticated: true,
       user: mockUser,
       logout: mockLogout,
-      checkAuth: mockCheckAuth,
       loading: false,
     });
   });
 
-  it('Sign-out button calls logout function', async () => {
+  it('Sign-out button calls logout function', () => {
     render(<UserAccountNav user={mockUser} />);
-    
-    // Open dropdown
-    const trigger = screen.getByRole('button', { name: /test user/i });
-    fireEvent.click(trigger);
 
-    // Find and click sign out
     const signOutBtn = screen.getByText(/sign out/i);
     fireEvent.click(signOutBtn);
 
     expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 
-  it('Account Settings link points to profile page', async () => {
+  it('Account Settings link points to profile page', () => {
     render(<UserAccountNav user={mockUser} />);
-    
-    // Open dropdown
-    const trigger = screen.getByRole('button', { name: /test user/i });
-    fireEvent.click(trigger);
 
     const profileLink = screen.getByRole('link', { name: /account settings/i });
     expect(profileLink).toHaveAttribute('href', '/dashboard/profile');
