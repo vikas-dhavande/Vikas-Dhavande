@@ -88,3 +88,31 @@ A modular authentication component library for React, supporting multi-provider 
   <i>"Code is poetry, and I'm here to write some bestsellers."</i><br>
   <b>© 2026 Made vikas dhavande, copyright 2026</b>
 </p>
+
+---
+
+### Graphify: Install & Run
+
+Graphify is distributed on PyPI.
+
+- Package name: `graphifyy`
+- CLI command: `graphify`
+- Python requirement: `3.10+`
+
+```bash
+# Install and run setup
+pip install graphifyy && graphify install
+
+# Build a knowledge graph for any project folder
+graphify ./raw
+```
+
+Outputs land in `graphify-out/`:
+
+```text
+graphify-out/
++-- graph.html        # interactive visualization
++-- GRAPH_REPORT.md   # core nodes, surprises, suggested questions
++-- graph.json        # persistent, queryable graph
++-- cache/            # incremental cache
+```

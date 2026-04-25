@@ -2,99 +2,107 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          });
-        },
-      },
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.next();
     }
-  );
 
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Protected routes
-  const protectedRoutes = ['/resources', '/dashboard'];
-  const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
-
-  if (isProtectedRoute && !user) {
-    console.warn('[SECURITY] Unauthorized access attempt blocked', {
-      path: request.nextUrl.pathname,
-      ip: request.headers.get('x-forwarded-for') || 'unknown',
+    let response = NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
     });
-    
-    // Redirect to home with login parameter to trigger login modal
-    const url = request.nextUrl.clone();
-    url.pathname = '/';
-    url.searchParams.set('login', 'true');
-    url.searchParams.set('redirect', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
 
-  if (user) {
-    // Fetch user profile to check role
+    const supabase = createServerClient(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        cookies: {
+          get(name: string) {
+            return request.cookies.get(name)?.value;
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            request.cookies.set({
+              name,
+              value,
+              ...options,
+            });
+            response = NextResponse.next({
+              request: {
+                headers: request.headers,
+              },
+            });
+            response.cookies.set({
+              name,
+              value,
+              ...options,
+            });
+          },
+          remove(name: string, options: CookieOptions) {
+            request.cookies.set({
+              name,
+              value: '',
+              ...options,
+            });
+            response = NextResponse.next({
+              request: {
+                headers: request.headers,
+              },
+            });
+            response.cookies.set({
+              name,
+              value: '',
+              ...options,
+            });
+          },
+        },
+      }
+    );
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      // Anonymise IP: take only the first address if comma-separated
+      const rawIp = request.headers.get('x-forwarded-for') ?? 'unknown';
+      const ip = rawIp.split(',')[0].trim();
+
+      console.warn('[SECURITY] Unauthenticated access attempt', {
+        path: request.nextUrl.pathname,
+        ip,
+      });
+
+      const loginUrl = new URL('/', request.url);
+      loginUrl.searchParams.set('login', 'true');
+      loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Session present — check role
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_user';
+    const isAdmin =
+      profile?.role === 'admin' || profile?.role === 'super_user';
 
-    if (request.nextUrl.pathname.startsWith('/dashboard') && !isAdmin) {
-      console.warn('[SECURITY] Non-admin user attempted to access dashboard', {
+    if (!isAdmin) {
+      const rawIp = request.headers.get('x-forwarded-for') ?? 'unknown';
+      const ip = rawIp.split(',')[0].trim();
+
+      console.warn('[SECURITY] Unauthorised access attempt (insufficient role)', {
         path: request.nextUrl.pathname,
-        userId: user.id,
-        role: profile?.role,
+        role: profile?.role ?? null,
+        ip,
       });
 
-      // Redirect to home if not admin
-      const url = request.nextUrl.clone();
-      url.pathname = '/';
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(new URL('/', request.url));
     }
 
     console.info('[INFO] Authenticated request', {
@@ -102,13 +110,15 @@ export async function middleware(request: NextRequest) {
       userId: user.id,
       role: profile?.role,
     });
-  }
 
-  return response;
+    // Authorised — forward with refreshed cookie headers
+    return response;
+  } catch (err) {
+    console.error('[Middleware] Unexpected error, falling through:', err);
+    return NextResponse.next();
+  }
 }
 
-
 export const config = {
-  matcher: ['/resources/:path*', '/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/resources/:path*'],
 };
-

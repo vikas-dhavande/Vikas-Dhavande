@@ -3,6 +3,8 @@ import { Blog } from '../types';
 
 export async function getBlogs() {
   const supabase = getSupabase();
+  if (!supabase) return [];
+
   const { data, error } = await supabase
     .from('blogs')
     .select('*')
@@ -20,6 +22,8 @@ export async function getBlogs() {
 
 export async function getBlogBySlug(slug: string) {
   const supabase = getSupabase();
+  if (!supabase) return null;
+
   const { data, error } = await supabase
     .from('blogs')
     .select('*')
@@ -36,6 +40,10 @@ export async function getBlogBySlug(slug: string) {
 
 export async function createBlog(blog: Partial<Blog>) {
   const supabase = getSupabase();
+  if (!supabase) {
+    throw new Error('Supabase is not configured.');
+  }
+
   const { data, error } = await supabase
     .from('blogs')
     .insert([blog])

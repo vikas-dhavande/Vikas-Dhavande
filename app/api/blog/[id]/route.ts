@@ -1,22 +1,20 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase-server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const body = await req.json();
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase is not configured' }, { status: 503 });
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { data: blog, error } = await supabase
       .from('blogs')
@@ -24,9 +22,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         ...body,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
+
+    if (error?.code === 'PGRST116' || !blog) {
+      return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+    }
 
     if (error) throw error;
 
@@ -36,25 +38,28 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    const { id } = await params;
+    const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase is not configured' }, { status: 503 });
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { error } = await supabase
       .from('blogs')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
+
+    if (error?.code === 'PGRST116') {
+      return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+    }
 
     if (error) throw error;
 

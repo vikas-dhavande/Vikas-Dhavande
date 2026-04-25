@@ -25,21 +25,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: true,
   });
 
-  const supabase = getSupabase();
-
-  const mapSupabaseUser = (sbUser: any): User | null => {
+  const mapSupabaseUser = (sbUser: any): Omit<User, 'role'> | null => {
     if (!sbUser) return null;
     return {
       id: sbUser.id,
       email: sbUser.email || '',
       name: sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email?.split('@')[0] || 'User',
       picture: sbUser.user_metadata?.avatar_url || sbUser.user_metadata?.picture || '',
-      role: 'user',
     };
-
   };
 
   const checkAuth = async () => {
+    const supabase = getSupabase();
+    if (!supabase) {
+      setAuthState({
+        isAuthenticated: false,
+        user: null,
+        loading: false,
+      });
+      return;
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
@@ -78,6 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Initial check
     void checkAuth();
+
+    const supabase = getSupabase();
+    if (!supabase) return;
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -119,6 +128,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = async () => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -129,6 +141,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithProvider = async (provider: OAuthProvider) => {
+    const supabase = getSupabase();
+    if (!supabase) {
+      logger.warn('Supabase auth is not configured', { provider });
+      return;
+    }
+
     logger.info('Initiating OAuth login', { provider });
     const { error } = await supabase.auth.signInWithOAuth({
       provider,

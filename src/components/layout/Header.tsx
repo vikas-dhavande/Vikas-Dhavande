@@ -31,28 +31,7 @@ import {
 } from '../ui/sheet';
 
 import { UserAccountNav } from './UserAccountNav';
-
-import { useSearchParams } from 'next/navigation';
-
-function LoginModalHandler({ 
-  onOpen: onOpenChange,
-  isAuthenticated,
-  loading
-}: { 
-  onOpen: (open: boolean) => void;
-  isAuthenticated: boolean;
-  loading: boolean;
-}) {
-  const searchParams = useSearchParams();
-
-  React.useEffect(() => {
-    if (searchParams.get('login') === 'true' && !isAuthenticated && !loading) {
-      onOpenChange(true);
-    }
-  }, [searchParams, isAuthenticated, loading, onOpenChange]);
-
-  return null;
-}
+import { LoginModalHandler } from '../auth/LoginModalHandler';
 
 export default function Header() {
   const { isAuthenticated, user, loading, logout } = useAuth();

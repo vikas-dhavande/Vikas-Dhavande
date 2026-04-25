@@ -1,21 +1,12 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase-server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase is not configured' }, { status: 503 });
+    }
 
     const { data: blogs, error } = await supabase
       .from('blogs')
@@ -33,33 +24,43 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    const supabase = await createClient();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase is not configured' }, { status: 503 });
+    }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Validate required fields when publishing
+    if (body.published_at) {
+      const { title, slug, content } = body;
+      if (!title?.trim() || !slug?.trim() || !content?.trim()) {
+        return NextResponse.json(
+          { error: 'title, slug, and content are required when publishing a post' },
+          { status: 400 }
+        );
+      }
+    }
 
     const { data: blog, error } = await supabase
       .from('blogs')
       .insert({
         ...body,
         author_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin',
-        updated_at: new Date().toISOString(),
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === '23505') {
+        return NextResponse.json(
+          { error: 'A blog post with this slug already exists' },
+          { status: 409 }
+        );
+      }
+      throw error;
+    }
 
     return NextResponse.json(blog);
   } catch (error: any) {
