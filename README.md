@@ -1,5 +1,5 @@
 # 👋 Hi there, I'm Vikas Dhavande!
-### 🚀 Full-Stack Developer | Creative Technologist | Open Source Enthusiast
+### 🚀 | Creative Technologist | Open Source Enthusiast
 
 ---
 
