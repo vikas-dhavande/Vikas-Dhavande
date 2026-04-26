@@ -10,7 +10,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Github, Globe, Chrome } from "lucide-react";
+import { Github, Globe, Chrome, Loader2 } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -20,10 +20,17 @@ interface LoginModalProps {
 export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
   const { signInWithProvider } = useAuth();
   const [email, setEmail] = React.useState("");
+  const [loadingProvider, setLoadingProvider] = React.useState<string | null>(null);
 
   const handleProviderLogin = async (provider: any) => {
-    await signInWithProvider(provider);
-    onOpenChange(false);
+    setLoadingProvider(provider);
+    try {
+      await signInWithProvider(provider);
+      // Note: if OAuth redirect works, we won't reach here (page navigates away).
+      // If we DO reach here, it means the provider call returned without redirecting (i.e. an error occurred).
+    } finally {
+      setLoadingProvider(null);
+    }
   };
 
   return (
@@ -78,16 +85,26 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
                   variant="outline" 
                   className="w-full h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium text-xs rounded-xl"
                   onClick={() => handleProviderLogin('google')}
+                  disabled={loadingProvider !== null}
                 >
-                  <Chrome className="w-4 h-4 text-primary" />
+                  {loadingProvider === 'google' ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Chrome className="w-4 h-4 text-primary" />
+                  )}
                   Continue with Google
                 </Button>
                 <Button 
                   variant="outline" 
                   className="w-full h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-3 font-medium text-xs rounded-xl"
                   onClick={() => handleProviderLogin('github')}
+                  disabled={loadingProvider !== null}
                 >
-                  <Github className="w-4 h-4" />
+                  {loadingProvider === 'github' ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Github className="w-4 h-4" />
+                  )}
                   Continue with GitHub
                 </Button>
               </div>

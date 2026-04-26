@@ -5,6 +5,7 @@ import { AuthState, User } from '../types';
 import { getSupabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 export type OAuthProvider = 'google' | 'github';
 
@@ -145,25 +146,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = getSupabase();
     if (!supabase) {
       logger.warn('Supabase auth is not configured', { provider });
+      toast.error('Authentication is currently unavailable', {
+        description: 'The authentication service is not configured. Please try again later.',
+      });
       return;
     }
 
     logger.info('Initiating OAuth login', { provider });
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        scopes: provider === 'google' 
-          ? 'openid email profile https://www.googleapis.com/auth/drive.readonly'
-          : 'user:email',
-        queryParams: provider === 'google' ? {
-          prompt: 'select_account',
-          access_type: 'offline',
-        } : {}
+    const providerLabel = provider === 'google' ? 'Google' : 'GitHub';
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: provider === 'google' 
+            ? 'openid email profile https://www.googleapis.com/auth/drive.readonly'
+            : 'user:email',
+          queryParams: provider === 'google' ? {
+            prompt: 'select_account',
+            access_type: 'offline',
+          } : {}
+        }
+      });
+      if (error) {
+        logger.error('Error during OAuth login', { provider, error: error.message });
+        toast.error(`Failed to sign in with ${providerLabel}`, {
+          description: error.message,
+        });
       }
-    });
-    if (error) {
-      logger.error('Error during OAuth login', { provider, error: error.message });
+    } catch (err) {
+      logger.error('Unexpected error during OAuth login', { provider, error: err });
+      toast.error(`Failed to sign in with ${providerLabel}`, {
+        description: 'An unexpected error occurred. Please try again.',
+      });
     }
   };
 
