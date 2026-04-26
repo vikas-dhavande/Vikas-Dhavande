@@ -27,56 +27,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: true,
   });
 
-  const mapSupabaseUser = (sbUser: any): Omit<User, 'role'> | null => {
-    if (!sbUser) return null;
+  const mapSupabaseUser = (sbUser: any, profileAvatarUrl?: string | null): Omit<User, 'role'> => {
+    const picture =
+      profileAvatarUrl ||
+      sbUser.user_metadata?.avatar_url ||
+      sbUser.user_metadata?.picture ||
+      null;
     return {
       id: sbUser.id,
       email: sbUser.email || '',
-      name: sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email?.split('@')[0] || 'User',
-      picture: sbUser.user_metadata?.avatar_url || sbUser.user_metadata?.picture || '',
+      name:
+        sbUser.user_metadata?.full_name ||
+        sbUser.user_metadata?.name ||
+        sbUser.email?.split('@')[0] ||
+        'User',
+      picture: picture || '',
     };
   };
 
   const checkAuth = async () => {
     const supabase = getSupabase();
     if (!supabase) {
-      setAuthState({
-        isAuthenticated: false,
-        user: null,
-        loading: false,
-      });
+      setAuthState({ isAuthenticated: false, user: null, loading: false });
       return;
     }
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        // Fetch profile with role
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
+      // getUser() hits the server — always fresh, no stale cached data
+      const { data: { user: sbUser }, error: userError } = await supabase.auth.getUser();
 
-        if (profileError) {
-          logger.error('Error fetching user profile', { error: profileError });
-        }
-
-        setAuthState({
-          isAuthenticated: true,
-          user: {
-            ...mapSupabaseUser(session.user)!,
-            role: profile?.role || 'user',
-          },
-          loading: false,
-        });
-      } else {
-        setAuthState({
-          isAuthenticated: false,
-          user: null,
-          loading: false,
-        });
+      if (userError || !sbUser) {
+        setAuthState({ isAuthenticated: false, user: null, loading: false });
+        return;
       }
+
+      // Fetch profile: role + custom avatar if the user uploaded one
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, avatar_url')
+        .eq('id', sbUser.id)
+        .single();
+
+      if (profileError) {
+        logger.error('Error fetching user profile', { error: profileError });
+      }
+
+      setAuthState({
+        isAuthenticated: true,
+        user: {
+          ...mapSupabaseUser(sbUser, profile?.avatar_url),
+          role: profile?.role || 'user',
+        },
+        loading: false,
+      });
     } catch (error) {
       logger.error('Error checking auth session', { error });
       setAuthState({ isAuthenticated: false, user: null, loading: false });
@@ -96,18 +99,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'SIGNED_IN') {
           logger.info('User signed in', { userId: session.user.id, provider: session.user.app_metadata.provider });
         }
-        
-        // Fetch profile with role on change
+
+        // Fetch profile: role + custom avatar
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, avatar_url')
           .eq('id', session.user.id)
           .single();
 
         setAuthState({
           isAuthenticated: true,
           user: {
-            ...mapSupabaseUser(session.user)!,
+            ...mapSupabaseUser(session.user, profile?.avatar_url),
             role: profile?.role || 'user',
           },
           loading: false,
