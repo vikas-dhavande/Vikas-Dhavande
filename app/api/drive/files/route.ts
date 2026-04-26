@@ -46,7 +46,8 @@ export async function GET(request: Request) {
       supportsAllDrives: true,
     } as const;
 
-    let files = [];
+    type DriveFile = NonNullable<DriveListResponse['files']>[number];
+    let files: DriveFile[] = [];
 
     if (tokens) {
       try {
