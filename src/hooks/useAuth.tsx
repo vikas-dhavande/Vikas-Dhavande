@@ -4,6 +4,7 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { AuthState, User } from '../types';
 import { getSupabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export type OAuthProvider = 'google' | 'github';
 
@@ -89,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!supabase) return;
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       if (session?.user) {
         if (event === 'SIGNED_IN') {
           logger.info('User signed in', { userId: session.user.id, provider: session.user.app_metadata.provider });

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function AuthErrorPage() {
   return (
@@ -32,19 +33,27 @@ export default function AuthErrorPage() {
           </div>
 
           <div className="grid gap-3">
-            <Button asChild className="w-full h-12 rounded-xl text-sm font-semibold">
-              <Link href="/?login=true">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Try Signing In Again
-              </Link>
-            </Button>
+            <Link 
+              href="/?login=true" 
+              className={cn(
+                buttonVariants({ variant: 'default' }), 
+                "w-full h-12 rounded-xl text-sm font-semibold flex items-center justify-center cursor-pointer shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-[0.98]"
+              )}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Signing In Again
+            </Link>
             
-            <Button asChild variant="outline" className="w-full h-12 rounded-xl text-sm font-semibold border-border/60">
-              <Link href="/">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Home
-              </Link>
-            </Button>
+            <Link 
+              href="/" 
+              className={cn(
+                buttonVariants({ variant: 'outline' }), 
+                "w-full h-12 rounded-xl text-sm font-semibold flex items-center justify-center cursor-pointer border-border/60 hover:bg-muted/50 transition-all active:scale-[0.98]"
+              )}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
           </div>
         </div>
 
