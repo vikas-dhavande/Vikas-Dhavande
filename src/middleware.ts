@@ -66,23 +66,34 @@ export async function middleware(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
+    const pathname = request.nextUrl.pathname;
+    const isDashboard = pathname.startsWith('/dashboard');
+
     if (!user) {
-      // Anonymise IP: take only the first address if comma-separated
       const rawIp = request.headers.get('x-forwarded-for') ?? 'unknown';
       const ip = rawIp.split(',')[0].trim();
 
       console.warn('[SECURITY] Unauthenticated access attempt', {
-        path: request.nextUrl.pathname,
+        path: pathname,
         ip,
       });
 
       const loginUrl = new URL('/', request.url);
       loginUrl.searchParams.set('login', 'true');
-      loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    // Session present — check role
+    // /resources — any authenticated user is allowed
+    if (!isDashboard) {
+      console.info('[INFO] Authenticated request to resources', {
+        path: pathname,
+        userId: user.id,
+      });
+      return response;
+    }
+
+    // /dashboard — requires admin or super_user role
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -96,8 +107,8 @@ export async function middleware(request: NextRequest) {
       const rawIp = request.headers.get('x-forwarded-for') ?? 'unknown';
       const ip = rawIp.split(',')[0].trim();
 
-      console.warn('[SECURITY] Unauthorised access attempt (insufficient role)', {
-        path: request.nextUrl.pathname,
+      console.warn('[SECURITY] Unauthorised dashboard access (insufficient role)', {
+        path: pathname,
         role: profile?.role ?? null,
         ip,
       });
@@ -105,19 +116,19 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    console.info('[INFO] Authenticated request', {
-      path: request.nextUrl.pathname,
+    console.info('[INFO] Authenticated admin request', {
+      path: pathname,
       userId: user.id,
       role: profile?.role,
     });
 
-    // Authorised — forward with refreshed cookie headers
     return response;
   } catch (err) {
     console.error('[Middleware] Unexpected error, falling through:', err);
     return NextResponse.next();
   }
 }
+
 
 export const config = {
   matcher: ['/dashboard/:path*', '/resources/:path*'],
