@@ -11,7 +11,7 @@ export function isSupabaseConfigured() {
 let supabaseClient: ReturnType<typeof createBrowserClient> | null = null;
 
 export function getSupabase() {
-  if (!isSupabaseConfigured()) return null;
+  if (!supabaseUrl || !supabaseAnonKey) return null;
 
   if (!supabaseClient) {
     supabaseClient = createBrowserClient(supabaseUrl, supabaseAnonKey);
@@ -21,7 +21,7 @@ export function getSupabase() {
 
 // New helper for client components (specifically for Next.js)
 export function createClient() {
-  if (!isSupabaseConfigured()) return null;
+  if (!supabaseUrl || !supabaseAnonKey) return null;
 
   return createBrowserClient(supabaseUrl, supabaseAnonKey);
 }
