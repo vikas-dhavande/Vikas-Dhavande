@@ -1,7 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
 
 export function isSupabaseConfigured() {
   return Boolean(supabaseUrl && supabaseAnonKey);
@@ -11,17 +11,21 @@ export function isSupabaseConfigured() {
 let supabaseClient: ReturnType<typeof createBrowserClient> | null = null;
 
 export function getSupabase() {
-  if (!supabaseUrl || !supabaseAnonKey) return null;
+  const url = supabaseUrl;
+  const key = supabaseAnonKey;
+  if (!url || !key) return null;
 
   if (!supabaseClient) {
-    supabaseClient = createBrowserClient(supabaseUrl, supabaseAnonKey);
+    supabaseClient = createBrowserClient(url, key);
   }
   return supabaseClient;
 }
 
 // New helper for client components (specifically for Next.js)
 export function createClient() {
-  if (!supabaseUrl || !supabaseAnonKey) return null;
+  const url = supabaseUrl;
+  const key = supabaseAnonKey;
+  if (!url || !key) return null;
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClient(url, key);
 }
