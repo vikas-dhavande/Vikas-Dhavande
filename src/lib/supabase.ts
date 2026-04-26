@@ -1,7 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
+const supabaseUrl = process.env.NEXT_PUBLIC_DD_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_DD_SUPABASE_ANON_KEY as string | undefined;
 
 export function isSupabaseConfigured() {
   return Boolean(supabaseUrl && supabaseAnonKey);

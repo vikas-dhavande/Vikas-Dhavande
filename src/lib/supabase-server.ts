@@ -2,15 +2,15 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export function isSupabaseServerConfigured() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = process.env.NEXT_PUBLIC_DD_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_DD_SUPABASE_ANON_KEY;
 
   return Boolean(url && key);
 }
 
 export async function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = process.env.NEXT_PUBLIC_DD_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_DD_SUPABASE_ANON_KEY;
 
   if (!url || !key) return null;
 

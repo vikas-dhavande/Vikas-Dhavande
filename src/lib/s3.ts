@@ -1,9 +1,9 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
-const accessKeyId = process.env.SUPABASE_S3_ACCESS_KEY_ID;
-const secretAccessKey = process.env.SUPABASE_S3_SECRET_ACCESS_KEY;
-const region = process.env.SUPABASE_S3_REGION || "ap-south-1";
-const endpoint = process.env.SUPABASE_S3_ENDPOINT;
+const accessKeyId = process.env.DD_SUPABASE_S3_ACCESS_KEY_ID;
+const secretAccessKey = process.env.DD_SUPABASE_S3_SECRET_ACCESS_KEY;
+const region = process.env.DD_SUPABASE_S3_REGION || "us-east-1";
+const endpoint = process.env.DD_SUPABASE_S3_ENDPOINT;
 
 if (!accessKeyId || !secretAccessKey || !endpoint) {
   if (typeof window === "undefined") {
