@@ -127,7 +127,7 @@ export default function Header() {
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] px-4 opacity-70">Account</p>
                     
                     <Link
-                      href="/dashboard/profile"
+                      href="/profile"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold active:scale-[0.98]"
                     >

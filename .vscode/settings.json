@@ -1,2 +1,32 @@
 {
+  // Tailwind v4 uses custom at-rules (@theme, @custom-variant, @source, etc.)
+  // that VS Code's built-in CSS language server doesn't recognise.
+  // Setting to "ignore" suppresses false-positive warnings.
+  "css.lint.unknownAtRules": "ignore",
+
+  // Tailwind v4 also uses @apply inside components — suppress those too
+  "css.validate": false,
+
+  // Use the Tailwind CSS IntelliSense extension as the CSS language server
+  // when available, so completions still work correctly.
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+
+  // TypeScript: use the workspace version of TS for accuracy
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // Format on save
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

@@ -60,7 +60,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
           <DropdownMenuItem
             render={
               <Link
-                href="/dashboard/profile"
+                href="/profile"
                 className="flex items-center gap-3 cursor-pointer w-full text-foreground hover:text-primary transition-colors"
               />
             }
