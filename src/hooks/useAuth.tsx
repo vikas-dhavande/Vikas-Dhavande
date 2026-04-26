@@ -153,6 +153,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: provider === 'google' 
+          ? 'openid email profile https://www.googleapis.com/auth/drive.readonly'
+          : 'user:email',
         queryParams: provider === 'google' ? {
           prompt: 'select_account',
           access_type: 'offline',
