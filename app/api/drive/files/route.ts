@@ -25,11 +25,13 @@ export async function GET(request: Request) {
     const folderIdRaw = url.searchParams.get('folderId') || process.env.GOOGLE_DRIVE_FOLDER_ID;
     const folderId = folderIdRaw?.trim().replace(/['\\]/g, '') || null;
 
+    // Need at least one auth method
     if (!tokens && !apiKey) {
       return jsonResponse({ error: 'Unauthorized: No tokens or API key provided' }, { status: 401 });
     }
 
-    if (!tokens && !folderId) {
+    // API key path requires a folder ID
+    if (!tokens && apiKey && !folderId) {
       return jsonResponse(
         { error: 'Missing Google Drive folder id. Set GOOGLE_DRIVE_FOLDER_ID or pass ?folderId=...' },
         { status: 400 },

@@ -84,12 +84,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
+    // /profile — any authenticated user is allowed (no role check)
+    if (pathname.startsWith('/profile')) {
+      return response;
+    }
+
     // /resources — any authenticated user is allowed
     if (!isDashboard) {
-      console.info('[INFO] Authenticated request to resources', {
-        path: pathname,
-        userId: user.id,
-      });
       return response;
     }
 
@@ -129,7 +130,6 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-
 export const config = {
-  matcher: ['/dashboard/:path*', '/resources/:path*'],
+  matcher: ['/dashboard/:path*', '/resources/:path*', '/profile/:path*'],
 };
