@@ -7,13 +7,13 @@ interface DriveListResponse {
     message?: string;
   };
   files?: Array<{
-    iconLink?: string;
-    id: string;
-    mimeType: string;
-    modifiedTime?: string;
-    name: string;
-    size?: string;
-    webViewLink?: string;
+    iconLink?: string | null;
+    id?: string | null;
+    mimeType?: string | null;
+    modifiedTime?: string | null;
+    name?: string | null;
+    size?: string | null;
+    webViewLink?: string | null;
   }>;
 }
 
