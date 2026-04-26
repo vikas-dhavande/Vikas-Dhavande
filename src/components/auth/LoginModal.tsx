@@ -10,7 +10,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Github, Globe, Chrome, Facebook, Component } from "lucide-react";
+import { Github, Globe, Chrome } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -90,24 +90,6 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
                   <Github className="w-4 h-4" />
                   Continue with GitHub
                 </Button>
-                <div className="grid grid-cols-2 gap-2.5">
-                  <Button 
-                    variant="outline" 
-                    className="h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-2 font-medium text-[10px] rounded-xl"
-                    onClick={() => handleProviderLogin('facebook')}
-                  >
-                    <Facebook className="w-3.5 h-3.5 text-blue-600" />
-                    Facebook
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-10 border-border/60 hover:bg-muted hover:border-border transition-all flex items-center justify-center gap-2 font-medium text-[10px] rounded-xl"
-                    onClick={() => handleProviderLogin('azure')}
-                  >
-                    <Component className="w-3.5 h-3.5 text-blue-500" />
-                    Microsoft
-                  </Button>
-                </div>
               </div>
 
               <div className="relative flex items-center py-1">

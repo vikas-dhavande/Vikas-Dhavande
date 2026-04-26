@@ -5,7 +5,7 @@ import { AuthState, User } from '../types';
 import { getSupabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
 
-export type OAuthProvider = 'google' | 'github' | 'facebook' | 'azure';
+export type OAuthProvider = 'google' | 'github';
 
 interface AuthContextType extends AuthState {
   login: () => void;
@@ -152,6 +152,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: provider === 'google' ? {
+          prompt: 'select_account',
+          access_type: 'offline',
+        } : {}
       }
     });
     if (error) {
