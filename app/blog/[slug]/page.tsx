@@ -73,7 +73,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         <article className="mx-auto flex w-full max-w-4xl flex-1 flex-col p-4 md:p-8">
           <div className="mb-8 flex flex-col gap-4">
             <div className="flex items-center gap-2 text-sm font-medium text-primary">
-              {blog.metadata && typeof blog.metadata === "object" && blog.metadata.category && (
+              {blog.metadata && typeof blog.metadata === "object" && Boolean(blog.metadata.category) && (
                 <span className="rounded-full bg-primary/10 px-3 py-1 uppercase tracking-wider text-xs">
                   {String(blog.metadata.category)}
                 </span>

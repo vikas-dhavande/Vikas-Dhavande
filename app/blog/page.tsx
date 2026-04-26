@@ -94,9 +94,9 @@ export default async function BlogPage() {
                   </div>
                   <div className="flex flex-1 flex-col p-5">
                     <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-3">
-                      {typeof blog.metadata === "object" && blog.metadata?.category && (
+                      {blog.metadata && typeof blog.metadata === "object" && (blog.metadata as any).category && (
                         <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-primary">
-                          {String(blog.metadata.category)}
+                          {String((blog.metadata as any).category)}
                         </span>
                       )}
                       <span className="flex items-center gap-1">
