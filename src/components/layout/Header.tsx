@@ -71,10 +71,8 @@ export default function Header() {
           </NavigationMenu>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="mr-1 sm:mr-2">
-            <ToggleTheme />
-          </div>
+        <div className="flex items-center gap-3">
+          <ToggleTheme />
           {!loading && (
             isAuthenticated && user ? (
               <UserAccountNav user={user} />

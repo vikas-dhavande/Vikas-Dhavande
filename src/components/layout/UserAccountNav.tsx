@@ -31,7 +31,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <button className="flex items-center gap-2 p-1.5 rounded-full hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all outline-none group border border-transparent hover:border-border" />
+          <button className="flex shrink-0 items-center gap-2 p-1.5 rounded-full hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all outline-none group border border-transparent hover:border-border" />
         }
       >
         <div className="flex items-center gap-3 pr-2">
