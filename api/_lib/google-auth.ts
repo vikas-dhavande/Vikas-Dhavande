@@ -7,6 +7,7 @@ export const AUTH_COOKIE_NAME = 'auth_tokens';
 export const OAUTH_STATE_COOKIE_NAME = 'oauth_state';
 
 export const GOOGLE_SCOPES = [
+  'openid',
   'https://www.googleapis.com/auth/userinfo.profile',
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/drive.readonly',
