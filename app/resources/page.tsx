@@ -186,7 +186,13 @@ export default function Resources() {
           <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">
             <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">Unable to load files</h3>
-            <p className="text-muted-foreground text-sm">Check the Drive API configuration and try again.</p>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto">{error}</p>
+            <button
+              onClick={() => fetchFiles(folderStack[folderStack.length - 1]?.id)}
+              className="mt-6 rounded-full bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              Try again
+            </button>
           </div>
         ) : files.length === 0 ? (
           <div className="bg-card border border-border rounded-3xl p-12 text-center shadow-sm">
