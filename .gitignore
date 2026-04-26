@@ -17,3 +17,10 @@ storybook-static
 
 .vercel
 .env*.local
+
+# TypeScript incremental build cache (auto-generated)
+tsconfig.tsbuildinfo
+
+# Graphify auto-generated cache & runtime graph data
+graphify-out/cache/
+graphify-out/graph.json
