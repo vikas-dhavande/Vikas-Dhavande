@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppSidebar } from "../../src/components/ui/app-sidebar";
+import { AppSidebar } from "@/components/ui/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,42 +7,19 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "../../src/components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "../../src/components/ui/sidebar";
-import { createClient } from "../../src/lib/supabase-server";
-import { Blog as BlogType } from "../../src/types";
+} from "@/components/ui/sidebar";
+import { getBlogs } from "@/lib/blogs";
+import { Blog as BlogType } from "@/types";
 import { Calendar, User, ArrowRight, BookOpen } from "lucide-react";
-import { calculateReadingTime } from "../../src/lib/utils";
+import { calculateReadingTime } from "@/lib/utils";
 
 export default async function BlogPage() {
-  const supabase = await createClient();
-  if (!supabase) {
-    return (
-      <div className="mx-auto max-w-3xl p-8 text-center">
-        <h1 className="text-2xl font-bold">Blog temporarily unavailable</h1>
-        <p className="mt-2 text-muted-foreground">
-          Supabase environment variables are not configured for this deployment.
-        </p>
-      </div>
-    );
-  }
-
-  const { data, error } = await supabase
-    .from("blogs")
-    .select("*")
-    .not("published_at", "is", null)
-    .lte("published_at", new Date().toISOString())
-    .order("published_at", { ascending: false });
-
-  if (error) {
-    console.error("Failed to load blogs:", error);
-  }
-
-  const blogs: BlogType[] = data ?? [];
+  const blogs: BlogType[] = await getBlogs();
 
   return (
     <SidebarProvider>

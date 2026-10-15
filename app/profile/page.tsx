@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { getSupabase } from '@/lib/supabase';
+import { client } from '@/lib/appwrite';
+import { Account, Storage, ID } from 'appwrite';
 import {
   Card,
   CardContent,
@@ -19,11 +20,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { 
   Loader2, 
-  Lock, 
   Mail, 
-  User as UserIcon, 
   Camera, 
-  CheckCircle2, 
   AlertCircle,
   ShieldCheck,
   ShieldAlert,
@@ -97,14 +95,11 @@ export default function ProfilePage() {
 
     setLoading(true);
     try {
-      const supabase = getSupabase();
-      if (!supabase) {
-        toast.error('Supabase is not configured');
-        return;
-      }
-
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
+      const account = new Account(client);
+      await account.updatePassword({
+        password: newPassword,
+        oldPassword: currentPassword || undefined,
+      });
       toast.success('Password updated successfully');
       setNewPassword('');
       setConfirmPassword('');
@@ -125,15 +120,13 @@ export default function ProfilePage() {
 
     setLoading(true);
     try {
-      const supabase = getSupabase();
-      if (!supabase) {
-        toast.error('Supabase is not configured');
-        return;
-      }
-
-      const { error } = await supabase.auth.updateUser({ email: newEmail });
-      if (error) throw error;
-      toast.success('Confirmation email sent to both old and new addresses');
+      const account = new Account(client);
+      await account.updateEmail({
+        email: newEmail,
+        password: currentPassword || '',
+      });
+      toast.success('Email updated successfully');
+      await checkAuth();
     } catch (err: any) {
       toast.error(err.message || 'Failed to update email');
     } finally {
@@ -178,37 +171,22 @@ export default function ProfilePage() {
 
     setLoading(true);
     try {
-      const supabase = getSupabase();
-      if (!supabase) {
-        toast.error('Supabase is not configured');
-        return;
-      }
-
-      const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, avatarFile);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      // Update profile
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: publicUrl }
+      const storage = new Storage(client);
+      const bucketId = process.env.NEXT_PUBLIC_APPWRITE_AVATARS_BUCKET_ID || 'avatars';
+      
+      const file = await storage.createFile({
+        bucketId,
+        fileId: ID.unique(),
+        file: avatarFile,
       });
 
-      if (updateError) throw updateError;
+      const fileUrl = storage.getFileView({
+        bucketId,
+        fileId: file.$id,
+      }).toString();
 
-      await checkAuth();
-      toast.success('Profile picture updated');
+      setPreviewUrl(fileUrl);
+      toast.success('Profile picture uploaded successfully');
       setAvatarFile(null);
     } catch (err: any) {
       toast.error(err.message || 'Failed to upload avatar');
@@ -270,7 +248,7 @@ export default function ProfilePage() {
                       isDragging ? "border-primary bg-primary/5" : "border-border",
                       avatarFile ? "bg-muted/50" : ""
                     )}
-                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                    onDragOver={(e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); }}
                     onDragLeave={() => setIsDragging(false)}
                     onDrop={handleDrop}
                   >
@@ -343,7 +321,7 @@ export default function ProfilePage() {
                         id="current-pwd" 
                         type="password" 
                         value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentPassword(e.target.value)}
                         placeholder="••••••••" 
                       />
                     </div>
@@ -354,7 +332,7 @@ export default function ProfilePage() {
                         id="new-pwd" 
                         type="password" 
                         value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value)}
                         placeholder="••••••••" 
                       />
                       <div className="space-y-1.5">
@@ -389,7 +367,7 @@ export default function ProfilePage() {
                         id="confirm-pwd" 
                         type="password" 
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
                         placeholder="••••••••" 
                       />
                     </div>
@@ -426,14 +404,14 @@ export default function ProfilePage() {
                           type="email" 
                           className="pl-9"
                           value={newEmail}
-                          onChange={(e) => setNewEmail(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewEmail(e.target.value)}
                         />
                       </div>
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-between border-t border-border pt-6 bg-muted/30">
                     <p className="text-xs text-muted-foreground">
-                      Requires verification of the new email address.
+                      Appwrite handles email address updates directly.
                     </p>
                     <Button type="submit" disabled={loading || newEmail === user?.email}>
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

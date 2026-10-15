@@ -1,5 +1,8 @@
-import { createClient } from '@/lib/supabase-server';
 import { NextRequest, NextResponse } from 'next/server';
+import { ID } from 'node-appwrite';
+
+const DATABASE_ID = process.env.APPWRITE_DATABASE_ID || 'default';
+const COLLECTION_ID = process.env.APPWRITE_ANALYTICS_COLLECTION_ID || 'analytics_events';
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,26 +22,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
-    if (!supabase) {
-      return NextResponse.json({ error: 'Supabase is not configured' }, { status: 503 });
+    const endpoint = process.env.APPWRITE_ENDPOINT || process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+    const projectId = process.env.APPWRITE_PROJECT_ID || process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+    const apiKey = process.env.APPWRITE_API_KEY;
+
+    if (!endpoint || !projectId || !apiKey) {
+      return NextResponse.json({ error: 'Appwrite is not configured' }, { status: 503 });
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { Client, Databases } = await import('node-appwrite');
+    const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
+    const databases = new Databases(client);
 
-    const { error } = await supabase
-      .from('analytics_events')
-      .insert({
+    await databases.createDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      ID.unique(),
+      {
         event_name,
         path,
         session_id,
-        user_id: user?.id || null,
-        user_agent,
-        referrer,
-        metadata: metadata || {},
-      });
-
-    if (error) throw error;
+        user_agent: user_agent || '',
+        referrer: referrer || '',
+        metadata: JSON.stringify(metadata || {}),
+      }
+    );
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

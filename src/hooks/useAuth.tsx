@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { AuthState, User } from '../types';
-import { getSupabase } from '../lib/supabase';
+import { client } from '../lib/appwrite';
+import { Account, OAuthProvider as AppwriteOAuthProvider } from 'appwrite';
 import { logger } from '../lib/logger';
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
 export type OAuthProvider = 'google' | 'github';
@@ -27,118 +27,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading: true,
   });
 
-  const mapSupabaseUser = (sbUser: any, profileAvatarUrl?: string | null): Omit<User, 'role'> => {
-    const picture =
-      profileAvatarUrl ||
-      sbUser.user_metadata?.avatar_url ||
-      sbUser.user_metadata?.picture ||
-      null;
-    return {
-      id: sbUser.id,
-      email: sbUser.email || '',
-      name:
-        sbUser.user_metadata?.full_name ||
-        sbUser.user_metadata?.name ||
-        sbUser.email?.split('@')[0] ||
-        'User',
-      picture: picture || '',
-    };
-  };
-
   const checkAuth = async () => {
-    const supabase = getSupabase();
-    if (!supabase) {
-      setAuthState({ isAuthenticated: false, user: null, loading: false });
-      return;
-    }
-
     try {
-      // getUser() hits the server — always fresh, no stale cached data
-      const { data: { user: sbUser }, error: userError } = await supabase.auth.getUser();
+      const account = new Account(client);
+      const appwriteUser = await account.get();
 
-      if (userError || !sbUser) {
+      if (!appwriteUser) {
         setAuthState({ isAuthenticated: false, user: null, loading: false });
         return;
       }
 
-      // Fetch profile: role + custom avatar if the user uploaded one
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role, avatar_url')
-        .eq('id', sbUser.id)
-        .single();
+      const labels = appwriteUser.labels || [];
+      const role = labels.includes('admin') || labels.includes('super_user')
+        ? (labels.includes('super_user') ? 'super_user' : 'admin')
+        : 'user';
 
-      if (profileError) {
-        logger.error('Error fetching user profile', { error: profileError });
-      }
+      const user: User = {
+        id: appwriteUser.$id,
+        email: appwriteUser.email || '',
+        name: appwriteUser.name || appwriteUser.email?.split('@')[0] || 'User',
+        picture: '',
+        role,
+      };
 
       setAuthState({
         isAuthenticated: true,
-        user: {
-          ...mapSupabaseUser(sbUser, profile?.avatar_url),
-          role: profile?.role || 'user',
-        },
+        user,
         loading: false,
       });
-    } catch (error) {
-      logger.error('Error checking auth session', { error });
+    } catch {
       setAuthState({ isAuthenticated: false, user: null, loading: false });
     }
   };
 
   useEffect(() => {
-    // Initial check
     void checkAuth();
-
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
-      if (session?.user) {
-        if (event === 'SIGNED_IN') {
-          logger.info('User signed in', { userId: session.user.id, provider: session.user.app_metadata.provider });
-        }
-
-        // Fetch profile: role + custom avatar
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role, avatar_url')
-          .eq('id', session.user.id)
-          .single();
-
-        setAuthState({
-          isAuthenticated: true,
-          user: {
-            ...mapSupabaseUser(session.user, profile?.avatar_url),
-            role: profile?.role || 'user',
-          },
-          loading: false,
-        });
-      } else {
-        if (event === 'SIGNED_OUT') {
-          logger.info('User signed out');
-        }
-        setAuthState({
-          isAuthenticated: false,
-          user: null,
-          loading: false,
-        });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   const logout = async () => {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      const account = new Account(client);
+      await account.deleteSession({ sessionId: 'current' });
       setAuthState({ isAuthenticated: false, user: null, loading: false });
     } catch (error) {
       logger.error('Error signing out', { error });
@@ -146,37 +75,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithProvider = async (provider: OAuthProvider) => {
-    const supabase = getSupabase();
-    if (!supabase) {
-      logger.warn('Supabase auth is not configured', { provider });
-      toast.error('Authentication is currently unavailable', {
-        description: 'The authentication service is not configured. Please try again later.',
-      });
-      return;
-    }
-
     logger.info('Initiating OAuth login', { provider });
     const providerLabel = provider === 'google' ? 'Google' : 'GitHub';
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          scopes: provider === 'google' 
-            ? 'openid email profile https://www.googleapis.com/auth/drive.readonly'
-            : 'user:email',
-          queryParams: provider === 'google' ? {
-            prompt: 'select_account',
-            access_type: 'offline',
-          } : {}
-        }
+      const account = new Account(client);
+      const targetProvider = provider === 'google' 
+        ? AppwriteOAuthProvider.Google 
+        : AppwriteOAuthProvider.Github;
+
+      account.createOAuth2Session({
+        provider: targetProvider,
+        success: `${window.location.origin}/`,
+        failure: `${window.location.origin}/sign-in`,
       });
-      if (error) {
-        logger.error('Error during OAuth login', { provider, error: error.message });
-        toast.error(`Failed to sign in with ${providerLabel}`, {
-          description: error.message,
-        });
-      }
     } catch (err) {
       logger.error('Unexpected error during OAuth login', { provider, error: err });
       toast.error(`Failed to sign in with ${providerLabel}`, {
@@ -189,7 +100,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGithub = () => signInWithProvider('github');
 
   return (
-    <AuthContext.Provider value={{ ...authState, login: () => {}, signInWithProvider, signInWithGoogle, signInWithGithub, logout, checkAuth }}>
+    <AuthContext.Provider
+      value={{
+        ...authState,
+        login: () => {},
+        signInWithProvider,
+        signInWithGoogle,
+        signInWithGithub,
+        logout,
+        checkAuth,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

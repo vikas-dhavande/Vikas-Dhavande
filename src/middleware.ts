@@ -1,75 +1,23 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { createSessionClient } from '@/lib/appwrite-server';
 
 export async function middleware(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_DD_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_DD_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return NextResponse.next();
-    }
-
-    let response = NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
-    });
-
-    const supabase = createServerClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value;
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            request.cookies.set({
-              name,
-              value,
-              ...options,
-            });
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            });
-            response.cookies.set({
-              name,
-              value,
-              ...options,
-            });
-          },
-          remove(name: string, options: CookieOptions) {
-            request.cookies.set({
-              name,
-              value: '',
-              ...options,
-            });
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            });
-            response.cookies.set({
-              name,
-              value: '',
-              ...options,
-            });
-          },
-        },
-      }
-    );
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
     const pathname = request.nextUrl.pathname;
     const isDashboard = pathname.startsWith('/dashboard');
 
-    if (!user) {
+    const projectId = process.env.APPWRITE_PROJECT_ID || process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+    
+    // Check for Appwrite session cookie (Appwrite client sets a cookie named 'a_session_<projectId>' or 'a_session_<projectId>_legacy')
+    const sessionCookieName = projectId ? `a_session_${projectId}` : undefined;
+    const sessionCookie = sessionCookieName 
+      ? request.cookies.get(sessionCookieName)?.value 
+      : undefined;
+
+    // Fallback: check generic custom appwrite-session header or cookie if present
+    const sessionToken = sessionCookie || request.cookies.get('appwrite-session')?.value;
+
+    if (!sessionToken) {
       const rawIp = request.headers.get('x-forwarded-for') ?? 'unknown';
       const ip = rawIp.split(',')[0].trim();
 
@@ -78,39 +26,39 @@ export async function middleware(request: NextRequest) {
         ip,
       });
 
-      const loginUrl = new URL('/', request.url);
-      loginUrl.searchParams.set('login', 'true');
+      const loginUrl = new URL('/sign-in', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    // /profile — any authenticated user is allowed (no role check)
-    if (pathname.startsWith('/profile')) {
-      return response;
+    // Authenticate session with Appwrite
+    let user;
+    try {
+      const { account } = createSessionClient(sessionToken);
+      user = await account.get();
+    } catch (authErr) {
+      console.warn('[SECURITY] Invalid session token', authErr);
+      const loginUrl = new URL('/sign-in', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
-    // /resources — any authenticated user is allowed
+    // /profile and /resources — any authenticated user is allowed
     if (!isDashboard) {
-      return response;
+      return NextResponse.next();
     }
 
-    // /dashboard — requires admin or super_user role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    const isAdmin =
-      profile?.role === 'admin' || profile?.role === 'super_user';
+    // /dashboard — requires admin or super_user label
+    const userLabels = user.labels || [];
+    const isAdmin = userLabels.includes('admin') || userLabels.includes('super_user');
 
     if (!isAdmin) {
       const rawIp = request.headers.get('x-forwarded-for') ?? 'unknown';
       const ip = rawIp.split(',')[0].trim();
 
-      console.warn('[SECURITY] Unauthorised dashboard access (insufficient role)', {
+      console.warn('[SECURITY] Unauthorised dashboard access (insufficient role/label)', {
         path: pathname,
-        role: profile?.role ?? null,
+        labels: userLabels,
         ip,
       });
 
@@ -119,11 +67,11 @@ export async function middleware(request: NextRequest) {
 
     console.info('[INFO] Authenticated admin request', {
       path: pathname,
-      userId: user.id,
-      role: profile?.role,
+      userId: user.$id,
+      labels: userLabels,
     });
 
-    return response;
+    return NextResponse.next();
   } catch (err) {
     console.error('[Middleware] Unexpected error, falling through:', err);
     return NextResponse.next();

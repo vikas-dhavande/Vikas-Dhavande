@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AppSidebar } from "../../../src/components/ui/app-sidebar";
+import { AppSidebar } from "@/components/ui/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,35 +8,24 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "../../../src/components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "../../../src/components/ui/sidebar";
-import { createClient } from "../../../src/lib/supabase-server";
-import { Blog as BlogType } from "../../../src/types";
+} from "@/components/ui/sidebar";
+import { getBlogBySlug } from "@/lib/blogs";
+import { Blog as BlogType } from "@/types";
 import { Calendar, User, Clock, ArrowLeft, BookOpen } from "lucide-react";
-import { calculateReadingTime } from "../../../src/lib/utils";
+import { calculateReadingTime } from "@/lib/utils";
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  if (!supabase) {
+  const blog = (await getBlogBySlug(slug)) as BlogType | null;
+
+  if (!blog) {
     notFound();
   }
-
-  const { data, error } = await supabase
-    .from("blogs")
-    .select("*")
-    .eq("slug", slug)
-    .single();
-
-  if (error || !data) {
-    notFound();
-  }
-
-  const blog = data as BlogType;
 
   return (
     <SidebarProvider>
