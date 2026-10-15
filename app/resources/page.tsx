@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useAuth, OAuthProvider } from '@/hooks/useAuth';
+import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import {
   FileText,
   ExternalLink,
@@ -40,7 +41,7 @@ interface StorageFile {
 }
 
 export default function Resources() {
-  const { user, isAuthenticated, signInWithProvider, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [files, setFiles] = useState<StorageFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -227,18 +228,12 @@ export default function Resources() {
           This area contains cloud architecture resources and storage artifacts. Sign in with your account to access.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <button
-            onClick={() => void signInWithProvider('google')}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors shadow-lg"
+          <Link
+            href="/sign-in?redirect=/resources"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg"
           >
-            Sign in with Google
-          </button>
-          <button
-            onClick={() => void signInWithProvider('github')}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-card px-8 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
-          >
-            Sign in with GitHub
-          </button>
+            Sign In to Access Resources
+          </Link>
         </div>
       </div>
     );
