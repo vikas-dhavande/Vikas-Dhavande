@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Blobatar } from '@/components/ui/blobatar';
 import {
   UserIcon,
   LogOutIcon,
@@ -35,12 +35,11 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         }
       >
         <div className="flex items-center gap-3 pr-2">
-          <Avatar className="size-8 ring-2 ring-border group-hover:ring-primary/20 transition-all shadow-sm">
-            <AvatarImage src={user.picture} alt={user.name} />
-            <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
-              {user.name?.charAt(0) || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <Blobatar
+            name={user.name || user.email || 'User'}
+            src={user.picture || undefined}
+            className="size-8 ring-2 ring-border group-hover:ring-primary/20 transition-all shadow-sm"
+          />
           <span className="hidden lg:inline-block text-sm font-medium text-foreground truncate max-w-[120px]">
             {user.name}
           </span>

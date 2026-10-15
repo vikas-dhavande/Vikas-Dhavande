@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "site": "https://vikas-dhavande.vercel.app",
+  "actions": [
+    {
+      "id": "user-sign-in",
+      "name": "Sign In",
+      "description": "Authenticate an existing user account with email and password",
+      "method": "declarative",
+      "endpoint": "/sign-in",
+      "parameters": {
+        "required": ["email", "password"]
+      }
+    },
+    {
+      "id": "user-sign-up",
+      "name": "Sign Up",
+      "description": "Register a new user account with email, password, and optional name",
+      "method": "declarative",
+      "endpoint": "/sign-up",
+      "parameters": {
+        "required": ["email", "password"],
+        "optional": ["name"]
+      }
+    }
+  ]
+}

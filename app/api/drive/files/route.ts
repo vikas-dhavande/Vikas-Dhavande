@@ -124,6 +124,7 @@ export async function GET(request: Request) {
 
     const res = await fetch(driveUrl.toString(), {
       headers: { Referer: referer },
+      next: { revalidate: 300 }, // Cache responses for 5 minutes to avoid exhausting Google Drive API quotas
     });
 
     const data = (await res.json()) as { files?: DriveFileRaw[]; error?: { message?: string } };

@@ -17,6 +17,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Vikas Dhavande - Portfolio",
   description: "Developer, Designer, and Tech Enthusiast",
+  other: {
+    "mcp-actions": "/mcp-actions.json",
+  },
 };
 
 export default function RootLayout({

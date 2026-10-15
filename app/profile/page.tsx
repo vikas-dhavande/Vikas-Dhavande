@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Blobatar } from '@/components/ui/blobatar';
 import { Separator } from '@/components/ui/separator';
 import { 
   Loader2, 
@@ -208,12 +209,11 @@ export default function ProfilePage() {
         <aside className="flex flex-col gap-2">
           <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6 text-center shadow-sm">
             <div className="relative group">
-              <Avatar className="h-24 w-24 ring-4 ring-background shadow-xl">
-                <AvatarImage src={previewUrl || ''} />
-                <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
-                  {user?.name?.charAt(0) || 'U'}
-                </AvatarFallback>
-              </Avatar>
+              <Blobatar
+                name={user?.name || user?.email || 'User'}
+                src={previewUrl || undefined}
+                className="h-24 w-24 ring-4 ring-background shadow-xl"
+              />
               <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                 <Camera className="h-6 w-6 text-white" />
               </div>
