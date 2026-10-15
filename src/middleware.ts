@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createSessionClient } from '@/lib/appwrite-server';
+import { Client, Account } from 'appwrite';
 
 export async function middleware(request: NextRequest) {
   try {
@@ -31,11 +31,16 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Authenticate session with Appwrite
+    // Authenticate session with Appwrite (edge-safe: uses browser SDK, not node-appwrite)
     let user;
     try {
-      const { account } = createSessionClient(sessionToken);
-      user = await account.get();
+      const endpoint = process.env.APPWRITE_ENDPOINT || process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || '';
+      const projectId = process.env.APPWRITE_PROJECT_ID || process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '';
+      const client = new Client()
+        .setEndpoint(endpoint)
+        .setProject(projectId)
+        .setSession(sessionToken);
+      user = await new Account(client).get();
     } catch (authErr) {
       console.warn('[SECURITY] Invalid session token', authErr);
       const loginUrl = new URL('/sign-in', request.url);

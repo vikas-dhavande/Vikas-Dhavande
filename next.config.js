@@ -8,10 +8,6 @@ const nextConfig = {
     // Skip in-process typecheck during Next.js bundling to prevent OOM on CI/Vercel (checked via npx tsc)
     ignoreBuildErrors: true,
   },
-  eslint: {
-    // ESLint also runs a separate heavy process — skip during build, run locally instead
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
