@@ -1,5 +1,5 @@
-import { jsonResponse } from '../../../api/_lib/responses';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
-  return jsonResponse({ status: 'ok' });
+  return NextResponse.json({ status: 'ok', service: 'appwrite' });
 }

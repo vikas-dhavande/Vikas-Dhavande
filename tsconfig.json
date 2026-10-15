@@ -42,6 +42,11 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".storybook",
+    "**/*.stories.*",
+    "src/test/**/*",
+    "**/*.test.*",
+    "scripts"
   ]
 }
