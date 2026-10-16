@@ -34,8 +34,8 @@ export async function middleware(request: NextRequest) {
     // Authenticate session with Appwrite (edge-safe: uses browser SDK, not node-appwrite)
     let user;
     try {
-      const endpoint = process.env.APPWRITE_ENDPOINT || process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || '';
-      const projectId = process.env.APPWRITE_PROJECT_ID || process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '';
+      const endpoint = process.env.APPWRITE_ENDPOINT || process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sfo.cloud.appwrite.io/v1';
+      const projectId = process.env.APPWRITE_PROJECT_ID || process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '6ad0f8ab0025a03812f7';
       const client = new Client()
         .setEndpoint(endpoint)
         .setProject(projectId)
