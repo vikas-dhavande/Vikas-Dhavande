@@ -28,6 +28,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import IconBreadcrumbs from '@/components/IconBreadcrumbs';
 import { logger } from '@/lib/logger';
 import { HairlineAccent } from '@/components/ui/hairline-accent';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 
 interface StorageFile {
   id: string;
@@ -43,6 +44,7 @@ interface StorageFile {
 
 export default function Resources() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [files, setFiles] = useState<StorageFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -229,12 +231,13 @@ export default function Resources() {
           This area contains cloud architecture resources and storage artifacts. Sign in with your account to access.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <Link
-            href="/sign-in?redirect=/resources"
+          <button
+            type="button"
+            onClick={() => openAuthModal('sign-in', '/resources')}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg"
           >
             Sign In to Access Resources
-          </Link>
+          </button>
         </div>
       </div>
     );

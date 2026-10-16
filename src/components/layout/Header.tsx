@@ -29,9 +29,11 @@ import {
   SheetTrigger,
 } from '../ui/sheet';
 import { UserAccountNav } from './UserAccountNav';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 
 export default function Header() {
   const { isAuthenticated, user, loading, logout } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const navLinks = [
@@ -73,13 +75,14 @@ export default function Header() {
             isAuthenticated && user ? (
               <UserAccountNav user={user} />
             ) : (
-              <Link
-                href="/sign-in"
+              <button
+                type="button"
+                onClick={() => openAuthModal('sign-in')}
                 className="flex items-center gap-2 rounded-full bg-primary px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
               >
                 <LogIn className="h-4 w-4" />
                 <span>Sign In</span>
-              </Link>
+              </button>
             )
           )}
           
@@ -160,16 +163,19 @@ export default function Header() {
                 ) : (
                   <div className="flex flex-col gap-3">
                     <div className="h-px bg-border/50 my-2 mx-4" />
-                    <Link
-                      href="/sign-in"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold active:scale-[0.98]"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        openAuthModal('sign-in');
+                      }}
+                      className="flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all text-lg font-semibold active:scale-[0.98] text-left w-full"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary shadow-sm">
                         <LogIn className="h-5 w-5" />
                       </div>
                       Sign In
-                    </Link>
+                    </button>
                   </div>
                 )}
               </nav>

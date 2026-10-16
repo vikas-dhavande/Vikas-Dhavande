@@ -11,6 +11,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AnalyticsTracker from "../src/components/analytics/AnalyticsTracker";
+import { AppDockNav } from "../src/components/navigation/AppDockNav";
+import { AuthModalProvider } from "../src/contexts/AuthModalContext";
+import { AuthModal } from "../src/components/auth/AuthModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,28 +34,32 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <TooltipProvider>
-              <div className="flex min-h-screen flex-col font-sans">
-                <Header />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-              </div>
-              <Toaster position="top-center" richColors />
-              <SpeedInsights />
-              <Analytics />
-              <Suspense fallback={null}>
-                <AnalyticsTracker />
-              </Suspense>
-            </TooltipProvider>
-          </ThemeProvider>
+          <AuthModalProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <TooltipProvider>
+                <div className="flex min-h-screen flex-col font-sans">
+                  <Header />
+                  <main className="flex-1 pb-20 md:pb-28">
+                    {children}
+                  </main>
+                  <Footer />
+                  <AppDockNav />
+                </div>
+                <AuthModal />
+                <Toaster position="top-center" richColors />
+                <SpeedInsights />
+                <Analytics />
+                <Suspense fallback={null}>
+                  <AnalyticsTracker />
+                </Suspense>
+              </TooltipProvider>
+            </ThemeProvider>
+          </AuthModalProvider>
         </AuthProvider>
       </body>
     </html>
