@@ -1,26 +1,57 @@
+# Dependencies
 node_modules/
-build/
-dist/
-coverage/
-.DS_Store
-*.log
-.env*
-!.env.example
+/.pnp
+.pnp.js
+.yarn/install-state.gz
 
-.vercel
+# Next.js & Production Build Outputs
 .next/
 out/
-next-env.d.ts
-
-*storybook.log
-storybook-static
-
+build/
+dist/
 .vercel
+
+# Environment Variables & Secrets (Keep .env.example tracked)
+.env*
+!.env.example
 .env*.local
 
-# TypeScript incremental build cache (auto-generated)
-tsconfig.tsbuildinfo
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Graphify auto-generated cache & runtime graph data
-graphify-out/cache/
-graphify-out/graph.json
+# Testing & Coverage
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Storybook
+storybook-static/
+*storybook.log
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Tooling & Cache
+.turbo/
+.eslintcache
+graphify-out/
+
+# IDE & Editor Cache
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
