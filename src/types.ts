@@ -4,6 +4,10 @@ export interface User {
   name: string;
   picture: string;
   role: 'user' | 'admin' | 'super_user';
+  emailVerification?: boolean;
+  createdAt?: string;
+  phone?: string;
+  prefs?: Record<string, any>;
 }
 
 export interface AuthState {

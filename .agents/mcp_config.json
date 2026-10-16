@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "betterbugs": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.betterbugs.io/mcp",
+        "--transport",
+        "http-first"
+      ]
+    },
+    "lightswind-ui": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "-p",
+        "lightswind",
+        "lightswind",
+        "mcp"
+      ]
+    }
+  }
+}

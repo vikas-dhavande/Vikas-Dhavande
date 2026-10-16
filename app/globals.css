@@ -98,6 +98,14 @@
   --sidebar-ring: oklch(0.708 0 0);
   --sidebar-width: 16rem;
   --sidebar-width-icon: 3rem;
+
+  /* Hairline Isometric 3D Tokens (Light) */
+  --hairline-plate: #ffffff;
+  --hairline-hi: #09090b;
+  --hairline-edge: #52525b;
+  --hairline-mid: #a1a1aa;
+  --hairline-lo: #e4e4e7;
+  --hairline-stroke: 0.9;
 }
 
 .dark {
@@ -133,6 +141,14 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Hairline Isometric 3D Tokens (Dark) */
+  --hairline-plate: #18181b;
+  --hairline-hi: #fafafa;
+  --hairline-edge: #a1a1aa;
+  --hairline-mid: #52525b;
+  --hairline-lo: #27272a;
+  --hairline-stroke: 0.9;
 }
 
 body {

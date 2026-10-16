@@ -7,6 +7,7 @@ import { Eye, FileText, Users, TrendingUp, ArrowUpRight, ArrowDownRight, BookOpe
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { HairlineAccent } from "@/components/ui/hairline-accent";
 
 interface AnalyticsStats {
   totalViews: number;
@@ -95,6 +96,31 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6 py-4">
+      {/* 3D Isometric Telemetry Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl border border-border bg-card/80 backdrop-blur-md shadow-sm">
+        <div className="flex items-center gap-3.5">
+          <HairlineAccent figure="plot" size="medium" />
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+                Executive Telemetry &amp; Operations
+              </h2>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                live
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Real-time traffic performance, visitor sessions, and editorial activity
+            </p>
+          </div>
+        </div>
+        <Link href="/dashboard/analytics">
+          <Button variant="outline" size="sm" className="gap-1.5 self-start sm:self-auto text-xs">
+            Full Analytics <ArrowUpRight className="h-3.5 w-3.5" />
+          </Button>
+        </Link>
+      </div>
+
       {/* Stat Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -131,9 +157,12 @@ export default function DashboardPage() {
       {/* Charts row */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Traffic Overview</CardTitle>
-            <CardDescription>Page views over the last 7 days</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle>Traffic Overview</CardTitle>
+              <CardDescription>Page views over the last 7 days</CardDescription>
+            </div>
+            <HairlineAccent figure="plot" size="compact" intensity={0.5} />
           </CardHeader>
           <CardContent className="h-[280px]">
             {loading ? (

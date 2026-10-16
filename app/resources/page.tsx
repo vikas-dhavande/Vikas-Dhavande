@@ -27,6 +27,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import IconBreadcrumbs from '@/components/IconBreadcrumbs';
 import { logger } from '@/lib/logger';
+import { HairlineAccent } from '@/components/ui/hairline-accent';
 
 interface StorageFile {
   id: string;
@@ -220,8 +221,8 @@ export default function Resources() {
   if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
-          <ShieldAlert className="h-10 w-10 text-destructive" />
+        <div className="flex justify-center mb-6">
+          <HairlineAccent figure="cabinet" size="medium" intensity={0.4} />
         </div>
         <h2 className="text-3xl font-bold text-foreground mb-4">Restricted Access</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
@@ -245,17 +246,22 @@ export default function Resources() {
         <IconBreadcrumbs />
 
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Cloud Resources</h1>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-                <HardDrive className="w-3.5 h-3.5" /> Appwrite Storage
-              </span>
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-card/60 p-6 md:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div className="flex items-center gap-5">
+            <div className="shrink-0 hidden sm:block">
+              <HairlineAccent figure="cabinet" size="compact" intensity={0.4} />
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Secure cloud storage bucket <span className="font-mono text-foreground">resources</span> • Connected as <span className="text-foreground font-medium">{user?.email || 'User'}</span>
-            </p>
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">Cloud Resources</h1>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+                  <HardDrive className="w-3.5 h-3.5" /> Appwrite Storage
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1.5">
+                Secure cloud storage bucket <span className="font-mono text-foreground">resources</span> • Connected as <span className="text-foreground font-medium">{user?.email || 'User'}</span>
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

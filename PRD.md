@@ -256,18 +256,55 @@ A lightweight, privacy-respecting client/server analytics engine that captures p
 ### 4.7 User Profile & Account Settings (`/profile`)
 
 #### Description
-Self-service identity and credential management page for authenticated users.
+Self-service identity, security, and preferences management suite for authenticated users, built with Next.js and Appwrite BaaS (Authentication, Storage, and Account Preferences).
 
 #### Functional Specifications
-1. **Credential Modification**:
-   - Password update with verification checks (`currentPassword`, `newPassword`, `confirmPassword`).
-   - Email address updates with session confirmation.
-2. **Avatar Customization**:
-   - File drag-and-drop or file upload for custom avatar images.
-   - Integrated **Blobatar** avatar generator (`@blobatar/react`) providing SVG-based generative avatars.
-3. **Role & Account Diagnostics**:
-   - Display of user role tier (`user`, `admin`, `super_user`) with security badges.
-   - Account creation date and identifier tracking.
+1. **View Profile & Header Summary**:
+   - Dynamic avatar display (custom uploaded photo or generative SVG Blobatar with initials fallback).
+   - Display name, role tier badge (`user`, `admin`, `super_user`), and primary email.
+   - Account creation date formatted as human-readable date (`Member since <Date>`).
+   - Email verification status badge: `Verified` (emerald check) or `Unverified` (amber alert).
+   - Unverified notice banner with direct "Resend Verification Email" action trigger (`account.createVerification`).
+
+2. **Profile Information & Editing (`Profile` Tab)**:
+   - Full name editing via `account.updateName({ name })`.
+   - Optional profile fields persisted directly into Appwrite Account Preferences (`prefs`):
+     - `bio`: Short biography (validated up to 200 characters with live character counter).
+     - `location`: City and country text field.
+     - `phone`: Contact phone number.
+   - Profile picture management:
+     - Drag-and-drop or file upload zone supporting JPG, PNG, WebP up to 2MB.
+     - Binary stored in Appwrite Storage (primary `avatars` bucket with automated fallback to `resources` bucket).
+     - Generated CDN view URL persisted to `prefs.avatarUrl`.
+     - "Remove Custom Avatar" action resetting to generative Blobatar and clearing `prefs.avatarUrl`.
+
+3. **Account Security & Session Management (`Security` Tab)**:
+   - **Password Update**: Requires current password, validates new password (minimum 8 characters), and renders interactive multi-tier password strength gauge (`Weak`, `Fair`, `Good`, `Strong`).
+   - **Email Update**: Updates login email with current password confirmation via `account.updateEmail({ email, password })`. Marks new address as unverified and triggers verification email workflow.
+   - **Active Sessions Monitor**:
+     - Lists all active login sessions using `account.listSessions()`.
+     - Displays device category icon (Laptop vs Smartphone), browser name, OS version, client IP address, country, and a "This Device" badge for the current session.
+     - Single session revocation action (`account.deleteSession({ sessionId })`).
+     - "Revoke All Other Sessions" action clearing all remote active sessions.
+
+4. **Preferences & Localization (`Preferences` Tab)**:
+   - **Interface Theme**: Three-state visual switcher (`Light`, `Dark`, `System`) integrated with `next-themes`.
+   - **Language Selection**: UI language selection (English, Spanish, French, German, Japanese, Hindi) saved to `prefs.language`.
+   - **Email Notifications**: Switch component toggling announcement and article alerts saved to `prefs.emailNotifications`.
+
+5. **Session Termination**:
+   - Single-click **Log Out** button ending current session via `account.deleteSession({ sessionId: 'current' })` and redirecting user to `/sign-in`.
+
+6. **Danger Zone & Account Deletion**:
+   - Distinctive destructive-accented security section at the bottom of the Security tab.
+   - Confirmation dialog warning that deletion is permanent and irreversible.
+   - Double-confirmation validation: user must type either `"DELETE"` or their exact email address to enable the deletion action.
+   - Executed via secure server endpoint `POST /api/user/delete`, which verifies the session, removes the user record via Appwrite Admin SDK (`users.delete`), purges active session cookies, and redirects to `/sign-in`.
+
+#### Architectural Resolution of Profile Open Questions
+- **Profile Field Persistence**: Stored directly in Appwrite Account Preferences (`account.updatePrefs()`), eliminating custom database schema migrations while keeping settings coupled to the user's auth identity.
+- **Email Verification Sequence**: Standard Appwrite pattern — email updates apply immediately with password validation, setting status to Unverified and allowing the user to request a verification email token.
+- **Account Deletion Protocol**: Immediate purge with double-confirmation modal, authenticated session verification, and complete server-side user deletion.
 
 ---
 
@@ -355,6 +392,9 @@ Central command interface for platform operations, accessible strictly to users 
 #### Analytics Endpoints
 - `POST /api/analytics/track`: Ingests client interaction telemetry event. Body: `{ event_name, path, session_id }`.
 - `GET /api/analytics/stats?range=24h|7d|30d`: Returns aggregated `{ totalViews, uniqueVisitors, topPages, chartData }`.
+
+#### User Account Endpoints
+- `POST /api/user/delete`: Authenticated endpoint to permanently delete user account and active sessions. Body: `{ confirmation: string }`. Validates that confirmation matches `"DELETE"` or the caller's email. Requires active session cookie (`200 OK`).
 
 ---
 

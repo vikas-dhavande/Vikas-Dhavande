@@ -17,6 +17,7 @@ import { getBlogs } from "@/lib/blogs";
 import { Blog as BlogType } from "@/types";
 import { Calendar, User, ArrowRight, BookOpen } from "lucide-react";
 import { calculateReadingTime } from "@/lib/utils";
+import { HairlineAccent } from "@/components/ui/hairline-accent";
 
 export default async function BlogPage() {
   const blogs: BlogType[] = await getBlogs();
@@ -41,11 +42,20 @@ export default async function BlogPage() {
         </header>
 
         <div className="flex flex-1 flex-col gap-8 p-4 md:p-8">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold tracking-tight">Latest Articles</h1>
-            <p className="text-muted-foreground">
-              Explore the latest insights on development, design, and technology.
-            </p>
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-card/60 p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+                <BookOpen className="h-3.5 w-3.5" />
+                <span>Knowledge & Engineering</span>
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight">Latest Articles</h1>
+              <p className="text-muted-foreground text-sm md:text-base">
+                Explore the latest insights on full-stack development, cloud architecture, and modern interface design.
+              </p>
+            </div>
+            <div className="shrink-0 hidden sm:block">
+              <HairlineAccent figure="riffle" size="medium" intensity={0.4} />
+            </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

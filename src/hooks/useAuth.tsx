@@ -42,12 +42,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ? (labels.includes('super_user') ? 'super_user' : 'admin')
         : 'user';
 
+      const userPrefs = appwriteUser.prefs || {};
       const user: User = {
         id: appwriteUser.$id,
         email: appwriteUser.email || '',
         name: appwriteUser.name || appwriteUser.email?.split('@')[0] || 'User',
-        picture: '',
+        picture: userPrefs.avatarUrl || '',
         role,
+        emailVerification: Boolean(appwriteUser.emailVerification),
+        createdAt: appwriteUser.$createdAt,
+        phone: appwriteUser.phone || '',
+        prefs: userPrefs,
       };
 
       setAuthState({
